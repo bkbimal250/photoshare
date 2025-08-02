@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-gnu@i0d2pv)r2b93#j#n7!nn)!s@k7qr80&lnnbu64jgvbutc0
 DEBUG = True
 
 # ALLOWED_HOSTS = ['photoshare-dxqw.onrender.com']
-ALLOWED_HOSTS = ['photoshare-dxqw.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 
 
