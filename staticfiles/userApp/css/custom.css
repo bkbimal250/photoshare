@@ -1,4 +1,13 @@
 /* UserApp specific styles */
-.user-app-custom {
+.userapp-custom-styles {
     /* Custom styles for userApp */
+}
+
+/* Additional userApp specific styles */
+.userapp-container {
+    /* Container styles */
+}
+
+.userapp-card {
+    /* Card styles */
 } 

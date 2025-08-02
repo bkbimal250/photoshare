@@ -133,10 +133,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'theme' / 'static',
-    BASE_DIR / 'userApp' / 'static',
+
+# Static files finders - ensure proper order
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
+
+# Note: STATICFILES_DIRS is not needed when using AppDirectoriesFinder
+# Each app's static files are automatically discovered
 
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
