@@ -1,0 +1,456 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>{% block title %}PhotoShare - Share Your Photography with the World{% endblock %}</title>
+    <meta name="title" content="{% block meta_title %}PhotoShare - Share Your Photography with the World{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Join PhotoShare, the premier photography community. Upload, share, and discover stunning photos from photographers worldwide. Connect with fellow artists and showcase your creative vision.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}photography, photo sharing, photographers, photo community, photo upload, photo gallery, photography platform, photo showcase, photo portfolio, photo art{% endblock %}">
+    <meta name="author" content="PhotoShare">
+    <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}PhotoShare - Share Your Photography with the World{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Join PhotoShare, the premier photography community. Upload, share, and discover stunning photos from photographers worldwide.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/photoshare-og.jpg' %}{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="PhotoShare">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:title" content="{% block twitter_title %}PhotoShare - Share Your Photography with the World{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}Join PhotoShare, the premier photography community. Upload, share, and discover stunning photos from photographers worldwide.{% endblock %}">
+    <meta property="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/photoshare-twitter.jpg' %}{% endblock %}">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="msapplication-TileColor" content="#3B82F6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PhotoShare">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    {% if debug %}
+        <!-- Development: Using CDN for faster development -->
+        <script src="https://cdn.tailwindcss.com"></script>
+    {% else %}
+        <!-- Production: Using compiled CSS -->
+        <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+    {% endif %}
+    
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Loading animation */
+        .loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+        
+        /* Photography-themed animations */
+        @keyframes camera-shutter {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .camera-shutter {
+            animation: camera-shutter 3s ease-in-out infinite;
+        }
+        
+        /* Glass morphism effect for cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Photography gradient text */
+        .photo-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "{% block schema_type %}WebSite{% endblock %}",
+        "name": "PhotoShare",
+        "description": "Share Your Photography with the World",
+        "url": "{{ request.scheme }}://{{ request.get_host }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.scheme }}://{{ request.get_host }}{% url 'userApp:search_results' %}?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "PhotoShare",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/photoshare-logo.png' %}"
+            }
+        }
+    }
+    </script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'userApp:home' %}" class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-camera text-white text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-gray-800 mx-2">PhotoShare</span>
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'userApp:home' %}" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a href="{% url 'userApp:photo_list' %}" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                        <i class="fas fa-images mr-2"></i>Photos
+                    </a>
+                    <a href="{% url 'userApp:album_list' %}" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                        <i class="fas fa-book-open mr-2"></i>Albums
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'userApp:photo_upload' %}" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                            <i class="fas fa-upload mr-2"></i>Upload
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Search Bar -->
+                <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                    <form action="{% url 'userApp:search_results' %}" method="GET" class="w-full">
+                        <div class="relative">
+                            <input type="text" name="q" placeholder="Search photos, photographers..." 
+                                   autocomplete="off"
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- User Profile Dropdown -->
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors duration-200">
+                                {% if user.profile_image %}
+                                    <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full object-cover">
+                                {% else %}
+                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-sm"></i>
+                                    </div>
+                                {% endif %}
+                                <span class="font-medium">{{ user.username }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-2">
+                                    <a href="{% url 'userApp:user_profile' username=user.username %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                                        <i class="fas fa-user mr-2"></i>Profile
+                                    </a>
+                                    <a href="{% url 'userApp:user_photos' username=user.username %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                                        <i class="fas fa-images mr-2"></i>My Photos
+                                    </a>
+                                    <a href="{% url 'userApp:profile_edit' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                                        <i class="fas fa-edit mr-2"></i>Edit Profile
+                                    </a>
+                                    <hr class="my-2">
+                                    <a href="{% url 'userApp:logout' %}" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition-colors duration-200">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'userApp:login' %}" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </a>
+                        <a href="{% url 'userApp:register' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200">
+                            <i class="fas fa-user-plus mr-2"></i>Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+                    <a href="{% url 'userApp:home' %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a href="{% url 'userApp:photo_list' %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                        <i class="fas fa-images mr-2"></i>Photos
+                    </a>
+                    <a href="{% url 'userApp:album_list' %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                        <i class="fas fa-book-open mr-2"></i>Albums
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'userApp:photo_upload' %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                            <i class="fas fa-upload mr-2"></i>Upload
+                        </a>
+                        <a href="{% url 'userApp:user_profile' username=user.username %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                            <i class="fas fa-user mr-2"></i>Profile
+                        </a>
+                        <a href="{% url 'userApp:user_photos' username=user.username %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                            <i class="fas fa-images mr-2"></i>My Photos
+                        </a>
+                        <a href="{% url 'userApp:profile_edit' %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                            <i class="fas fa-edit mr-2"></i>Edit Profile
+                        </a>
+                        <a href="{% url 'userApp:logout' %}" class="block px-3 py-2 text-red-600 hover:text-red-700 font-medium">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'userApp:login' %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </a>
+                        <a href="{% url 'userApp:register' %}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                            <i class="fas fa-user-plus mr-2"></i>Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700{% elif message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 border border-yellow-400 text-yellow-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
+                    <div class="flex items-center">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle mr-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle mr-2"></i>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="relative">
+        <!-- Photography-themed background pattern -->
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+            <!-- Subtle camera aperture pattern -->
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400 to-purple-600 rounded-full blur-3xl"></div>
+                <div class="absolute top-3/4 right-1/4 w-80 h-80 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-1/4 left-1/2 w-72 h-72 bg-gradient-to-r from-purple-400 to-pink-600 rounded-full blur-3xl"></div>
+            </div>
+        </div>
+        
+        <!-- Content wrapper with glass effect -->
+        <div class="relative z-10">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Brand -->
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-camera text-white text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold">PhotoShare</span>
+                    </div>
+                    <p class="text-gray-400 mb-6 max-w-md">
+                        Share your photography with the world. Connect with fellow photographers, discover amazing photos, and showcase your creative vision.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'userApp:home' %}" class="text-gray-400 hover:text-white transition-colors duration-200">Home</a></li>
+                        <li><a href="{% url 'userApp:photo_list' %}" class="text-gray-400 hover:text-white transition-colors duration-200">Photos</a></li>
+                        <li><a href="{% url 'userApp:album_list' %}" class="text-gray-400 hover:text-white transition-colors duration-200">Albums</a></li>
+                        <li><a href="{% url 'userApp:sitemap' %}" class="text-gray-400 hover:text-white transition-colors duration-200">Sitemap</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="border-gray-800 my-8">
+
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">
+                    © 2024 PhotoShare. All rights reserved.
+                </p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-200">Privacy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-200">Terms</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-200">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

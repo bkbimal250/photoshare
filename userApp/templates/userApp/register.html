@@ -1,0 +1,500 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Register - PhotoShare{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Background Decorative Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400 to-pink-600 rounded-full opacity-10 blur-3xl"></div>
+        <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-tl from-orange-400 to-red-600 rounded-full opacity-10 blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-400 to-indigo-600 rounded-full opacity-5 blur-3xl"></div>
+    </div>
+    
+    <div class="max-w-lg w-full space-y-8 relative z-10">
+        <!-- Header Section -->
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg mb-6">
+                <i class="fas fa-user-plus text-white text-2xl"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                Join PhotoShare
+            </h1>
+            <p class="text-lg text-gray-600 mb-6">
+                Create your account and start sharing your photography journey
+            </p>
+            <div class="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                <span>Already have an account?</span>
+                <a href="{% url 'userApp:login' %}" class="font-semibold text-purple-600 hover:text-purple-700 transition duration-300">
+                    Sign in here
+                </a>
+            </div>
+        </div>
+        
+        <!-- Registration Form Card -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
+            <form class="space-y-6" method="POST">
+                {% csrf_token %}
+                
+                <!-- Error Messages -->
+                {% if form.errors %}
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 animate-pulse">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400 text-lg"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-semibold text-red-800">
+                                    Please correct the following errors:
+                                </h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        {% for field, errors in form.errors.items %}
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Success Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                            <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-check-circle text-green-400 text-lg"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-semibold text-green-800">
+                                            {{ message }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                
+
+                
+                <!-- Username Field -->
+                <div class="space-y-2">
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-semibold text-gray-700">
+                        Username <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-at text-gray-400"></i>
+                        </div>
+                        <input id="{{ form.username.id_for_label }}" 
+                               name="{{ form.username.name }}" 
+                               type="text" 
+                               required 
+                               autocomplete="username"
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 {% if form.username.errors %}border-red-300 ring-red-200{% endif %}"
+                               placeholder="Choose a unique username"
+                               value="{{ form.username.value|default:'' }}">
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            {{ form.username.errors.0 }}
+                        </p>
+                    {% endif %}
+                    {% if form.username.help_text %}
+                        <p class="text-sm text-gray-500">{{ form.username.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Email Field -->
+                <div class="space-y-2">
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-700">
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                        <input id="{{ form.email.id_for_label }}" 
+                               name="{{ form.email.name }}" 
+                               type="email" 
+                               required 
+                               autocomplete="email"
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 {% if form.email.errors %}border-red-300 ring-red-200{% endif %}"
+                               placeholder="Enter your email address"
+                               value="{{ form.email.value|default:'' }}">
+                    </div>
+                    {% if form.email.errors %}
+                        <p class="text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            {{ form.email.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Password Fields Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Password -->
+                    <div class="space-y-2">
+                        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-semibold text-gray-700">
+                            Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.password1.id_for_label }}" 
+                                   name="{{ form.password1.name }}" 
+                                   type="password" 
+                                   required 
+                                   autocomplete="new-password"
+                                   class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 {% if form.password1.errors %}border-red-300 ring-red-200{% endif %}"
+                                   placeholder="Create a strong password">
+                            <button type="button" 
+                                    onclick="togglePassword('{{ form.password1.id_for_label }}')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition duration-200">
+                                <i id="password1-toggle" class="fas fa-eye text-gray-400"></i>
+                            </button>
+                        </div>
+                        {% if form.password1.errors %}
+                            <p class="text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                {{ form.password1.errors.0 }}
+                            </p>
+                        {% endif %}
+                        {% if form.password1.help_text %}
+                            <div class="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
+                                {{ form.password1.help_text|safe }}
+                            </div>
+                        {% endif %}
+                        <!-- Password Strength Indicator -->
+                        <div id="password-strength" class="hidden">
+                            <div class="flex items-center space-x-2 mt-2">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div id="strength-bar" class="h-2 rounded-full transition-all duration-300"></div>
+                                </div>
+                                <span id="strength-text" class="text-xs font-medium"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm Password -->
+                    <div class="space-y-2">
+                        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-semibold text-gray-700">
+                            Confirm Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="{{ form.password2.id_for_label }}" 
+                                   name="{{ form.password2.name }}" 
+                                   type="password" 
+                                   required 
+                                   autocomplete="new-password"
+                                   class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 {% if form.password2.errors %}border-red-300 ring-red-200{% endif %}"
+                                   placeholder="Confirm your password">
+                            <button type="button" 
+                                    onclick="togglePassword('{{ form.password2.id_for_label }}')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition duration-200">
+                                <i id="password2-toggle" class="fas fa-eye text-gray-400"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}
+                            <p class="text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                {{ form.password2.errors.0 }}
+                            </p>
+                        {% endif %}
+                        <!-- Password Match Indicator -->
+                        <div id="password-match" class="hidden">
+                            <p class="text-sm flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                <span class="text-green-600">Passwords match</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terms and Conditions -->
+                <div class="flex items-start space-x-3">
+                    <input id="terms" name="terms" type="checkbox" required
+                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded mt-1 transition duration-200">
+                    <label for="terms" class="text-sm text-gray-700 leading-relaxed">
+                        I agree to the 
+                        <a href="#" class="text-purple-600 hover:text-purple-700 font-medium transition duration-200">Terms of Service</a> 
+                        and 
+                        <a href="#" class="text-purple-600 hover:text-purple-700 font-medium transition duration-200">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <!-- Create Account Button -->
+                <button type="submit" 
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-user-plus text-purple-200 group-hover:text-purple-100 transition duration-200"></i>
+                    </span>
+                    <span id="register-text">Create Account</span>
+                    <span id="register-loading" class="hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        Creating account...
+                    </span>
+                </button>
+            </form>
+            
+            <!-- Social Login Divider -->
+            <div class="mt-8">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
+                    </div>
+                </div>
+                
+                <!-- Social Login Buttons -->
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button type="button" 
+                            class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition duration-300 transform hover:-translate-y-0.5">
+                        <i class="fab fa-google text-red-500 text-lg"></i>
+                        <span class="ml-2 font-medium">Google</span>
+                    </button>
+                    
+                    <button type="button" 
+                            class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition duration-300 transform hover:-translate-y-0.5">
+                        <i class="fab fa-facebook text-blue-600 text-lg"></i>
+                        <span class="ml-2 font-medium">Facebook</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Benefits Section -->
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+            <h3 class="text-lg font-semibold text-purple-800 mb-4 flex items-center">
+                <i class="fas fa-star text-purple-600 mr-2"></i>
+                Why Join PhotoShare?
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-camera text-purple-500 mt-1"></i>
+                    <span class="text-purple-700">Share your photography with the world</span>
+                </div>
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-users text-purple-500 mt-1"></i>
+                    <span class="text-purple-700">Connect with fellow photographers</span>
+                </div>
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-heart text-purple-500 mt-1"></i>
+                    <span class="text-purple-700">Get feedback and appreciation</span>
+                </div>
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-trophy text-purple-500 mt-1"></i>
+                    <span class="text-purple-700">Participate in challenges and contests</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center">
+            <p class="text-xs text-gray-500">
+                By creating an account, you agree to our terms of service and privacy policy. 
+                We'll send you a confirmation email to verify your account.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom animations */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    /* Glass morphism effect */
+    .glass {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    
+    /* Custom focus styles */
+    .focus\:ring-purple-500:focus {
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+    }
+    
+    /* Button hover effects */
+    .btn-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Input focus animation */
+    .input-focus {
+        transition: all 0.3s ease;
+    }
+    
+    .input-focus:focus {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
+    }
+    
+    /* Password strength colors */
+    .strength-weak { background-color: #ef4444; }
+    .strength-medium { background-color: #f59e0b; }
+    .strength-strong { background-color: #10b981; }
+</style>
+
+<script>
+    // Password visibility toggle
+    function togglePassword(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(inputId.replace('id_', '') + '-toggle');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+    
+    // Password strength indicator
+    document.getElementById('{{ form.password1.id_for_label }}').addEventListener('input', function() {
+        const password = this.value;
+        const strengthIndicator = document.getElementById('password-strength');
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        
+        if (password.length > 0) {
+            strengthIndicator.classList.remove('hidden');
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            if (strength <= 2) {
+                strengthBar.className = 'h-2 rounded-full transition-all duration-300 strength-weak';
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'text-xs font-medium text-red-600';
+            } else if (strength <= 3) {
+                strengthBar.className = 'h-2 rounded-full transition-all duration-300 strength-medium';
+                strengthText.textContent = 'Medium';
+                strengthText.className = 'text-xs font-medium text-yellow-600';
+            } else {
+                strengthBar.className = 'h-2 rounded-full transition-all duration-300 strength-strong';
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'text-xs font-medium text-green-600';
+            }
+            
+            strengthBar.style.width = (strength * 20) + '%';
+        } else {
+            strengthIndicator.classList.add('hidden');
+        }
+    });
+    
+    // Password match indicator
+    function checkPasswordMatch() {
+        const password1 = document.getElementById('{{ form.password1.id_for_label }}').value;
+        const password2 = document.getElementById('{{ form.password2.id_for_label }}').value;
+        const matchIndicator = document.getElementById('password-match');
+        
+        if (password2.length > 0) {
+            if (password1 === password2) {
+                matchIndicator.classList.remove('hidden');
+            } else {
+                matchIndicator.classList.add('hidden');
+            }
+        } else {
+            matchIndicator.classList.add('hidden');
+        }
+    }
+    
+    document.getElementById('{{ form.password1.id_for_label }}').addEventListener('input', checkPasswordMatch);
+    document.getElementById('{{ form.password2.id_for_label }}').addEventListener('input', checkPasswordMatch);
+    
+    // Form submission with loading state
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const submitButton = this.querySelector('button[type="submit"]');
+        const registerText = document.getElementById('register-text');
+        const registerLoading = document.getElementById('register-loading');
+        
+        // Show loading state
+        registerText.classList.add('hidden');
+        registerLoading.classList.remove('hidden');
+        submitButton.disabled = true;
+        
+        // Re-enable after a delay (in case of validation errors)
+        setTimeout(() => {
+            registerText.classList.remove('hidden');
+            registerLoading.classList.add('hidden');
+            submitButton.disabled = false;
+        }, 5000);
+    });
+    
+    // Auto-focus on first input
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstInput = document.querySelector('input[type="text"]');
+        if (firstInput) {
+            setTimeout(() => {
+                firstInput.focus();
+            }, 500);
+        }
+        
+        // Add floating animation to decorative elements
+        const decorativeElements = document.querySelectorAll('.absolute');
+        decorativeElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.5}s`;
+            element.classList.add('animate-float');
+        });
+    });
+    
+    // Enter key navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const activeElement = document.activeElement;
+            if (activeElement.tagName === 'INPUT') {
+                const form = activeElement.closest('form');
+                if (form) {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton && !submitButton.disabled) {
+                        submitButton.click();
+                    }
+                }
+            }
+        }
+    });
+    
+    // Add input focus effects
+    document.querySelectorAll('input').forEach(input => {
+        input.classList.add('input-focus');
+    });
+    
+    // Add button hover effects
+    document.querySelectorAll('button').forEach(button => {
+        button.classList.add('btn-hover');
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,594 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}PhotoShare - Share Your Photography{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
+        <div class="absolute top-40 right-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-20 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 4s;"></div>
+        <div class="absolute bottom-40 right-20 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 6s;"></div>
+    </div>
+    
+    <!-- Floating Icons -->
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-32 left-16 text-white opacity-20 animate-bounce">
+            <i class="fas fa-camera text-6xl"></i>
+        </div>
+        <div class="absolute top-48 right-24 text-white opacity-20 animate-pulse">
+            <i class="fas fa-heart text-4xl"></i>
+        </div>
+        <div class="absolute bottom-32 left-32 text-white opacity-20 animate-bounce" style="animation-delay: 1s;">
+            <i class="fas fa-star text-3xl"></i>
+        </div>
+        <div class="absolute bottom-48 right-16 text-white opacity-20 animate-pulse" style="animation-delay: 2s;">
+            <i class="fas fa-image text-5xl"></i>
+        </div>
+    </div>
+    
+    <!-- Hero Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="mb-8">
+            <div class="inline-flex items-center space-x-2 bg-white bg-opacity-10 backdrop-blur-sm rounded-full px-6 py-3 text-white text-sm font-medium mb-8">
+                <i class="fas fa-rocket text-yellow-400"></i>
+                <span>Join 5,000+ photographers worldwide</span>
+            </div>
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+            Share Your 
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 animate-pulse">
+                Photography
+            </span>
+            <br>With the World
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
+            Join thousands of photographers, discover amazing images, and showcase your creative vision to a global community of art lovers.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+            {% if user.is_authenticated %}
+                <a href="{% url 'userApp:photo_upload' %}" class="group bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:from-blue-600 hover:to-purple-700 transition duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3">
+                    <i class="fas fa-upload text-xl group-hover:rotate-12 transition duration-300"></i>
+                    <span>Upload Photo</span>
+                </a>
+            {% else %}
+                <a href="{% url 'userApp:register' %}" class="group bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3">
+                    <i class="fas fa-user-plus text-xl group-hover:rotate-12 transition duration-300"></i>
+                    <span>Get Started Free</span>
+                </a>
+                <a href="{% url 'userApp:login' %}" class="group bg-white bg-opacity-20 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3">
+                    <i class="fas fa-sign-in-alt text-xl group-hover:rotate-12 transition duration-300"></i>
+                    <span>Sign In</span>
+                </a>
+            {% endif %}
+        </div>
+        
+        <!-- Trust Indicators -->
+        <div class="flex flex-wrap justify-center items-center gap-8 text-blue-100 text-sm">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-green-400"></i>
+                <span>100% Free</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-globe text-green-400"></i>
+                <span>Global Community</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-mobile-alt text-green-400"></i>
+                <span>Mobile Friendly</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div class="w-6 h-10 border-2 border-white rounded-full flex justify-center">
+            <div class="w-1 h-3 bg-white rounded-full mt-2 animate-pulse"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-20 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-50"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Growing Community</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Join thousands of photographers who trust PhotoShare to showcase their work</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="group text-center">
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition duration-300 shadow-lg">
+                        <i class="fas fa-images text-white text-2xl"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-xs"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold text-gray-800 mb-2 counter" data-target="10000">0</div>
+                <div class="text-gray-600 font-medium">Photos Shared</div>
+            </div>
+            
+            <div class="group text-center">
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition duration-300 shadow-lg">
+                        <i class="fas fa-users text-white text-2xl"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-xs"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold text-gray-800 mb-2 counter" data-target="5000">0</div>
+                <div class="text-gray-600 font-medium">Photographers</div>
+            </div>
+            
+            <div class="group text-center">
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition duration-300 shadow-lg">
+                        <i class="fas fa-heart text-white text-2xl"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-red-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-xs"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold text-gray-800 mb-2 counter" data-target="50000">0</div>
+                <div class="text-gray-600 font-medium">Likes Given</div>
+            </div>
+            
+            <div class="group text-center">
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition duration-300 shadow-lg">
+                        <i class="fas fa-globe text-white text-2xl"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-xs"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold text-gray-800 mb-2 counter" data-target="100">0</div>
+                <div class="text-gray-600 font-medium">Countries</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Photos Section -->
+<section class="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <i class="fas fa-star text-yellow-500"></i>
+                <span>Featured Collection</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Featured Photos</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Discover the most stunning and popular images from our community of talented photographers. Each photo tells a unique story.
+            </p>
+        </div>
+        
+        {% if featured_photos %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {% for photo in featured_photos %}
+                <div class="group bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition duration-500 transform hover:-translate-y-2">
+                    <div class="relative overflow-hidden">
+                        <a href="{% url 'userApp:photo_detail' photo.id %}">
+                            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
+                        </a>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-60 transition duration-300"></div>
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-eye mr-1"></i> {{ photo.views }}
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-heart mr-1"></i> {{ photo.likes.count }}
+                        </div>
+                        <div class="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-star mr-1"></i> Featured
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-gray-800 mb-3 text-lg group-hover:text-blue-600 transition duration-300">
+                            <a href="{% url 'userApp:photo_detail' photo.id %}">
+                                {{ photo.title }}
+                            </a>
+                        </h3>
+                        {% if photo.description %}
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">{{ photo.description|truncatewords:15 }}</p>
+                        {% endif %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                {% if photo.photographer.profile_image %}
+                                    <img src="{{ photo.photographer.profile_image.url }}" alt="{{ photo.photographer.username }}" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200">
+                                {% else %}
+                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-xs"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">{{ photo.photographer.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ photo.created_at|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                            {% if photo.category %}
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    {{ photo.category.name }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="{% url 'userApp:photo_list' %}" class="group inline-flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105 hover:shadow-xl">
+                    <span>Explore All Photos</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition duration-300"></i>
+                </a>
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-images text-4xl text-gray-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-3">No photos yet</h3>
+                <p class="text-gray-500 mb-6">Be the first to share amazing photography and inspire others!</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'userApp:photo_upload' %}" class="inline-flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload First Photo</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'userApp:register' %}" class="inline-flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Join & Upload</span>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-20 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-pink-50 opacity-30"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center space-x-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <i class="fas fa-folder text-purple-600"></i>
+                <span>Browse Categories</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Explore Categories</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Find inspiration in different photography styles and genres. From landscapes to portraits, discover your next creative project.
+            </p>
+        </div>
+        
+        {% if categories %}
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                {% for category in categories %}
+                <a href="{% url 'userApp:category_photos' category.id %}" class="group">
+                    <div class="relative bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 text-center hover:from-blue-100 hover:to-purple-100 transition duration-500 transform hover:scale-105 hover:shadow-xl border border-gray-100 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-0 group-hover:opacity-10 transition duration-300"></div>
+                        <div class="relative">
+                            <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition duration-300 shadow-lg">
+                                <i class="fas fa-folder text-white text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2 text-lg group-hover:text-blue-600 transition duration-300">{{ category.name }}</h3>
+                            <p class="text-sm text-gray-600 font-medium">{{ category.photo_count }} photos</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-folder text-4xl text-gray-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-3">No categories yet</h3>
+                <p class="text-gray-500">Categories will appear as photos are uploaded and organized.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recent Uploads Section -->
+<section class="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%239C92AC" fill-opacity="0.05"%3E%3Cpath d="M20 20c0 11.046-8.954 20-20 20s-20-8.954-20-20 8.954-20 20-20 20 8.954 20 20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z"/%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <i class="fas fa-clock text-green-600"></i>
+                <span>Fresh Content</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Latest Uploads</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                See what's new in our community. Fresh perspectives, creative compositions, and inspiring moments shared by photographers like you.
+            </p>
+        </div>
+        
+        {% if recent_photos %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {% for photo in recent_photos %}
+                <div class="group bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition duration-500 transform hover:-translate-y-2">
+                    <div class="relative overflow-hidden">
+                        <a href="{% url 'userApp:photo_detail' photo.id %}">
+                            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-full h-48 object-cover group-hover:scale-110 transition duration-700">
+                        </a>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-60 transition duration-300"></div>
+                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-clock mr-1"></i> New
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
+                            <i class="fas fa-heart mr-1"></i> {{ photo.likes.count }}
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition duration-300">
+                            <a href="{% url 'userApp:photo_detail' photo.id %}">
+                                {{ photo.title }}
+                            </a>
+                        </h3>
+                        {% if photo.description %}
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">{{ photo.description|truncatewords:10 }}</p>
+                        {% endif %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                {% if photo.photographer.profile_image %}
+                                    <img src="{{ photo.photographer.profile_image.url }}" alt="{{ photo.photographer.username }}" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200">
+                                {% else %}
+                                    <div class="w-8 h-8 bg-gradient-to-r from-green-400 to-teal-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-xs"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">{{ photo.photographer.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ photo.created_at|timesince }} ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-100 to-teal-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-clock text-4xl text-gray-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-3">No recent uploads</h3>
+                <p class="text-gray-500 mb-6">Be the first to share your latest work and inspire the community!</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'userApp:photo_upload' %}" class="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-300">
+                        <i class="fas fa-upload"></i>
+                        <span>Share Your Work</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'userApp:register' %}" class="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-300">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Join & Share</span>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white relative overflow-hidden">
+    <div class="absolute inset-0">
+        <div class="absolute top-10 left-10 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
+        <div class="absolute bottom-10 right-10 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 3s;"></div>
+    </div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="mb-8">
+            <div class="inline-flex items-center space-x-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3 text-white text-sm font-medium">
+                <i class="fas fa-rocket text-yellow-400"></i>
+                <span>Ready to Get Started?</span>
+            </div>
+        </div>
+        
+        <h2 class="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+            Ready to Share Your 
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+                Photography?
+            </span>
+        </h2>
+        
+        <p class="text-xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Join thousands of photographers from around the world. Share your vision, discover amazing images, and connect with fellow artists in our vibrant community.
+        </p>
+        
+        {% if user.is_authenticated %}
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+                <a href="{% url 'userApp:photo_upload' %}" class="group bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3">
+                    <i class="fas fa-upload text-xl group-hover:rotate-12 transition duration-300"></i>
+                    <span>Upload Your First Photo</span>
+                </a>
+                <a href="{% url 'userApp:photo_list' %}" class="group bg-white bg-opacity-20 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3">
+                    <i class="fas fa-images text-xl group-hover:rotate-12 transition duration-300"></i>
+                    <span>Explore Gallery</span>
+                </a>
+            </div>
+        {% else %}
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+                <a href="{% url 'userApp:register' %}" class="group bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3">
+                    <i class="fas fa-user-plus text-xl group-hover:rotate-12 transition duration-300"></i>
+                    <span>Get Started Free</span>
+                </a>
+                <a href="{% url 'userApp:login' %}" class="group bg-white bg-opacity-20 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3">
+                    <i class="fas fa-sign-in-alt text-xl group-hover:rotate-12 transition duration-300"></i>
+                    <span>Sign In</span>
+                </a>
+            </div>
+        {% endif %}
+        
+        <div class="flex flex-wrap justify-center items-center gap-8 text-blue-100 text-sm">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-green-400"></i>
+                <span>No credit card required</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-infinity text-green-400"></i>
+                <span>Free forever</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-users text-green-400"></i>
+                <span>Join 5,000+ photographers</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="py-20 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-yellow-50 to-orange-50 opacity-30"></div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="mb-8">
+            <div class="inline-flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-sm font-medium">
+                <i class="fas fa-envelope text-yellow-600"></i>
+                <span>Stay Updated</span>
+            </div>
+        </div>
+        
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Stay Inspired</h2>
+        <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Get weekly inspiration, photography tips, and community highlights delivered directly to your inbox. Never miss the latest trends and techniques.
+        </p>
+        
+        <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto mb-6">
+            <input type="email" placeholder="Enter your email address" 
+                   class="flex-1 px-6 py-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+            <button type="submit" class="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105 hover:shadow-xl flex items-center space-x-2">
+                <span>Subscribe</span>
+                <i class="fas fa-arrow-right group-hover:translate-x-1 transition duration-300"></i>
+            </button>
+        </form>
+        
+        <p class="text-sm text-gray-500">
+            <i class="fas fa-lock mr-1"></i>
+            We respect your privacy. Unsubscribe at any time.
+        </p>
+    </div>
+</section>
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Counter animation */
+    .counter {
+        transition: all 0.3s ease;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #2563eb, #7c3aed);
+    }
+</style>
+
+<script>
+    // Counter animation
+    function animateCounters() {
+        const counters = document.querySelectorAll('.counter');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000; // 2 seconds
+            const increment = target / (duration / 16); // 60fps
+            let current = 0;
+            
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.textContent = Math.floor(current).toLocaleString();
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target.toLocaleString();
+                }
+            };
+            
+            updateCounter();
+        });
+    }
+    
+    // Intersection Observer for counter animation
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    // Observe stats section
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add parallax effect to floating elements
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.animate-float');
+        
+        parallaxElements.forEach((element, index) => {
+            const speed = 0.5 + (index * 0.1);
+            element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+</script>
+{% endblock %}

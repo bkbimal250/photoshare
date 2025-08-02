@@ -1,0 +1,355 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Login - PhotoShare{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Background Decorative Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full opacity-10 blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400 to-pink-600 rounded-full opacity-10 blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-yellow-400 to-orange-600 rounded-full opacity-5 blur-3xl"></div>
+    </div>
+    
+    <div class="max-w-md w-full space-y-8 relative z-10">
+        <!-- Header Section -->
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg mb-6">
+                <i class="fas fa-camera text-white text-2xl"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                Welcome Back
+            </h1>
+            <p class="text-lg text-gray-600 mb-6">
+                Sign in to continue your photography journey
+            </p>
+            <div class="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                <span>Don't have an account?</span>
+                <a href="{% url 'userApp:register' %}" class="font-semibold text-blue-600 hover:text-blue-700 transition duration-300">
+                    Create one here
+                </a>
+            </div>
+        </div>
+        
+        <!-- Login Form Card -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
+            <form class="space-y-6" method="POST">
+                {% csrf_token %}
+                
+                <!-- Error Messages -->
+                {% if form.errors %}
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 animate-pulse">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400 text-lg"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-semibold text-red-800">
+                                    Please correct the following errors:
+                                </h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        {% for field, errors in form.errors.items %}
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Success Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                            <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-check-circle text-green-400 text-lg"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-semibold text-green-800">
+                                            {{ message }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- Username/Email Field -->
+                <div class="space-y-2">
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-semibold text-gray-700">
+                        Username or Email
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input id="{{ form.username.id_for_label }}" 
+                               name="{{ form.username.name }}" 
+                               type="text" 
+                               required 
+                               autocomplete="username"
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 {% if form.username.errors %}border-red-300 ring-red-200{% endif %}"
+                               placeholder="Enter your username or email"
+                               value="{{ form.username.value|default:'' }}">
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            {{ form.username.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Password Field -->
+                <div class="space-y-2">
+                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-semibold text-gray-700">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input id="{{ form.password.id_for_label }}" 
+                               name="{{ form.password.name }}" 
+                               type="password" 
+                               required 
+                               autocomplete="current-password"
+                               class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 {% if form.password.errors %}border-red-300 ring-red-200{% endif %}"
+                               placeholder="Enter your password">
+                        <button type="button" 
+                                onclick="togglePassword()"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition duration-200">
+                            <i id="password-toggle" class="fas fa-eye text-gray-400"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <p class="text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            {{ form.password.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Remember Me and Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center cursor-pointer group">
+                        <input id="remember_me" name="remember_me" type="checkbox" 
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition duration-200">
+                        <span class="ml-2 text-sm text-gray-700 group-hover:text-gray-900 transition duration-200">
+                            Remember me
+                        </span>
+                    </label>
+                    
+                    <a href="{% url 'userApp:password_reset' %}" class="text-sm font-medium text-blue-600 hover:text-blue-700 transition duration-200">
+                        Forgot password?
+                    </a>
+                </div>
+                
+                <!-- Sign In Button -->
+                <button type="submit" 
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-sign-in-alt text-blue-200 group-hover:text-blue-100 transition duration-200"></i>
+                    </span>
+                    <span id="signin-text">Sign in to PhotoShare</span>
+                    <span id="signin-loading" class="hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        Signing in...
+                    </span>
+                </button>
+            </form>
+            
+            <!-- Social Login Divider -->
+            <div class="mt-8">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
+                    </div>
+                </div>
+                
+                <!-- Social Login Buttons -->
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button type="button" 
+                            class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition duration-300 transform hover:-translate-y-0.5">
+                        <i class="fab fa-google text-red-500 text-lg"></i>
+                        <span class="ml-2 font-medium">Google</span>
+                    </button>
+                    
+                    <button type="button" 
+                            class="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition duration-300 transform hover:-translate-y-0.5">
+                        <i class="fab fa-facebook text-blue-600 text-lg"></i>
+                        <span class="ml-2 font-medium">Facebook</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demo Account Info -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-info-circle text-blue-600"></i>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-blue-800 mb-2">
+                        Demo Account Available
+                    </h3>
+                    <div class="text-sm text-blue-700 space-y-1">
+                        <p>For testing purposes, you can use:</p>
+                        <div class="bg-white rounded-lg p-3 space-y-1">
+                            <p><strong>Username:</strong> <code class="bg-gray-100 px-2 py-1 rounded">demo</code></p>
+                            <p><strong>Password:</strong> <code class="bg-gray-100 px-2 py-1 rounded">demo123456</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center">
+            <p class="text-xs text-gray-500">
+                By signing in, you agree to our 
+                <a href="#" class="text-blue-600 hover:text-blue-700 transition duration-200">terms of service</a> 
+                and 
+                <a href="#" class="text-blue-600 hover:text-blue-700 transition duration-200">privacy policy</a>.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom animations */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    /* Glass morphism effect */
+    .glass {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    
+    /* Custom focus styles */
+    .focus\:ring-blue-500:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* Button hover effects */
+    .btn-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Input focus animation */
+    .input-focus {
+        transition: all 0.3s ease;
+    }
+    
+    .input-focus:focus {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+</style>
+
+<script>
+    // Password visibility toggle
+    function togglePassword() {
+        const passwordInput = document.getElementById('{{ form.password.id_for_label }}');
+        const toggleIcon = document.getElementById('password-toggle');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+    
+    // Form submission with loading state
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const submitButton = this.querySelector('button[type="submit"]');
+        const signinText = document.getElementById('signin-text');
+        const signinLoading = document.getElementById('signin-loading');
+        
+        // Show loading state
+        signinText.classList.add('hidden');
+        signinLoading.classList.remove('hidden');
+        submitButton.disabled = true;
+        
+        // Re-enable after a delay (in case of validation errors)
+        setTimeout(() => {
+            signinText.classList.remove('hidden');
+            signinLoading.classList.add('hidden');
+            submitButton.disabled = false;
+        }, 5000);
+    });
+    
+    // Auto-focus on first input
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstInput = document.querySelector('input[type="text"]');
+        if (firstInput) {
+            setTimeout(() => {
+                firstInput.focus();
+            }, 500);
+        }
+        
+        // Add floating animation to decorative elements
+        const decorativeElements = document.querySelectorAll('.absolute');
+        decorativeElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.5}s`;
+            element.classList.add('animate-float');
+        });
+    });
+    
+    // Enter key navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const activeElement = document.activeElement;
+            if (activeElement.tagName === 'INPUT') {
+                const form = activeElement.closest('form');
+                if (form) {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton && !submitButton.disabled) {
+                        submitButton.click();
+                    }
+                }
+            }
+        }
+    });
+    
+    // Add input focus effects
+    document.querySelectorAll('input').forEach(input => {
+        input.classList.add('input-focus');
+    });
+    
+    // Add button hover effects
+    document.querySelectorAll('button').forEach(button => {
+        button.classList.add('btn-hover');
+    });
+</script>
+{% endblock %} 

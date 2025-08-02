@@ -1,0 +1,366 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Create Album - PhotoShare{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-50 to-purple-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <!-- Breadcrumb -->
+            <nav class="flex justify-center mb-6" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{% url 'userApp:home' %}" class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-home mr-2"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="{% url 'userApp:album_list' %}" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition duration-300">
+                                Albums
+                            </a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-sm font-medium text-blue-600">Create Album</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Create New Album</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Organize your photography into beautiful collections and tell stories through curated images.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Create Album Form -->
+<section class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+            <!-- Form Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-white">Album Details</h2>
+                        <p class="text-blue-100 text-sm">Fill in the information below to create your album</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Content -->
+            <div class="p-6">
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Error Messages -->
+                    {% if form.errors %}
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-red-800">
+                                        Please correct the following errors:
+                                    </h3>
+                                    <div class="mt-2 text-sm text-red-700">
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            {% for field, errors in form.errors.items %}
+                                                {% for error in errors %}
+                                                    <li>{{ error }}</li>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Album Title -->
+                    <div>
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Album Title <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="{{ form.title.id_for_label }}" 
+                               name="{{ form.title.name }}" 
+                               value="{{ form.title.value|default:'' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 {% if form.title.errors %}border-red-300{% endif %}"
+                               placeholder="Enter a descriptive title for your album"
+                               required>
+                        {% if form.title.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Choose a title that best describes your photo collection</p>
+                    </div>
+                    
+                    <!-- Album Description -->
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea id="{{ form.description.id_for_label }}" 
+                                  name="{{ form.description.name }}" 
+                                  rows="4"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 {% if form.description.errors %}border-red-300{% endif %}"
+                                  placeholder="Tell the story behind your album...">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Share the inspiration, location, or theme of your photo collection</p>
+                    </div>
+                    
+                    <!-- Privacy Settings -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Privacy Settings
+                        </label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" 
+                                       name="{{ form.is_public.name }}" 
+                                       value="True" 
+                                       {% if form.is_public.value == True or not form.is_public.value %}checked{% endif %}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <div class="ml-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-globe text-green-500 mr-2"></i>
+                                        <span class="text-sm font-medium text-gray-700">Public Album</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Anyone can view and discover your album</p>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="radio" 
+                                       name="{{ form.is_public.name }}" 
+                                       value="False" 
+                                       {% if form.is_public.value == False %}checked{% endif %}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <div class="ml-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-lock text-gray-500 mr-2"></i>
+                                        <span class="text-sm font-medium text-gray-700">Private Album</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Only you can view this album</p>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.is_public.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.is_public.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Photo Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Select Photos for Your Album
+                        </label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition duration-200">
+                            <div class="space-y-4">
+                                <i class="fas fa-images text-4xl text-gray-400"></i>
+                                <div>
+                                    <p class="text-lg font-medium text-gray-700">No photos selected yet</p>
+                                    <p class="text-sm text-gray-500">You can add photos to your album after creating it</p>
+                                </div>
+                                <a href="{% url 'userApp:photo_upload' %}" class="inline-flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                                    <i class="fas fa-upload"></i>
+                                    <span>Upload Photos First</span>
+                                </a>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">You can add photos to your album after creating it from your photo library</p>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                        <button type="submit" 
+                                class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition duration-300 flex items-center justify-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Create Album</span>
+                        </button>
+                        <a href="{% url 'userApp:album_list' %}" 
+                           class="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-300 flex items-center justify-center space-x-2">
+                            <i class="fas fa-times"></i>
+                            <span>Cancel</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tips Section -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Album Creation Tips</h2>
+            <p class="text-xl text-gray-600">Make your albums stand out with these helpful suggestions</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Choose a Clear Title</h3>
+                <p class="text-gray-600 text-sm">Use descriptive titles that give viewers a clear idea of what to expect in your album.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-pen text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Tell a Story</h3>
+                <p class="text-gray-600 text-sm">Add a compelling description that explains the inspiration or story behind your photo collection.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-users text-green-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Consider Privacy</h3>
+                <p class="text-gray-600 text-sm">Choose between public and private albums based on your comfort level with sharing.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-sort text-orange-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Organize Thoughtfully</h3>
+                <p class="text-gray-600 text-sm">Group related photos together to create a cohesive visual narrative.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-tags text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Use Consistent Themes</h3>
+                <p class="text-gray-600 text-sm">Maintain visual consistency with similar styles, colors, or subjects throughout your album.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-share-alt text-indigo-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Share Your Vision</h3>
+                <p class="text-gray-600 text-sm">Let your personality shine through in your album choices and descriptions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">Ready to Start Creating?</h2>
+        <p class="text-xl text-gray-600 mb-8">Join thousands of photographers who are already organizing their work into beautiful albums.</p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{% url 'userApp:album_list' %}" class="inline-flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                <i class="fas fa-book"></i>
+                <span>Browse Albums</span>
+            </a>
+            <a href="{% url 'userApp:photo_upload' %}" class="inline-flex items-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-300">
+                <i class="fas fa-upload"></i>
+                <span>Upload Photos</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Custom form styling */
+    input[type="text"], textarea {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    input[type="text"]:focus, textarea:focus {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    
+    /* Radio button styling */
+    input[type="radio"]:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    
+    /* Hover effects for cards */
+    .hover-scale {
+        transition: transform 0.3s ease;
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+</style>
+
+<script>
+    // Form validation and enhancement
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+        const descriptionTextarea = document.getElementById('{{ form.description.id_for_label }}');
+        
+        // Auto-resize textarea
+        if (descriptionTextarea) {
+            descriptionTextarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        }
+        
+        // Form submission enhancement
+        form.addEventListener('submit', function(e) {
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Album...';
+            submitButton.disabled = true;
+            
+            // Re-enable after a delay (in case of validation errors)
+            setTimeout(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }, 3000);
+        });
+        
+        // Character counter for description
+        if (descriptionTextarea) {
+            const counter = document.createElement('div');
+            counter.className = 'mt-1 text-sm text-gray-500 text-right';
+            descriptionTextarea.parentNode.appendChild(counter);
+            
+            function updateCounter() {
+                const length = descriptionTextarea.value.length;
+                const maxLength = 500; // Set your desired max length
+                counter.textContent = `${length}/${maxLength} characters`;
+                
+                if (length > maxLength * 0.9) {
+                    counter.className = 'mt-1 text-sm text-orange-500 text-right';
+                } else {
+                    counter.className = 'mt-1 text-sm text-gray-500 text-right';
+                }
+            }
+            
+            descriptionTextarea.addEventListener('input', updateCounter);
+            updateCounter(); // Initial count
+        }
+    });
+</script>
+{% endblock %} 

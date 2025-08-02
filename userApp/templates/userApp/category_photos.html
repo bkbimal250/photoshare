@@ -1,0 +1,349 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}{{ category.name }} Photos - PhotoShare{% endblock %}
+
+{% block content %}
+<!-- Category Header -->
+<section class="bg-gradient-to-r from-blue-50 to-purple-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <!-- Breadcrumb -->
+            <nav class="flex justify-center mb-6" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{% url 'userApp:home' %}" class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-home mr-2"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-sm font-medium text-gray-500">Category</span>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-sm font-medium text-blue-600">{{ category.name }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            
+            <!-- Category Info -->
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-6">
+                    <i class="fas fa-folder text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-6">{{ category.description }}</p>
+                {% endif %}
+                <div class="flex items-center justify-center space-x-6 text-gray-600">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-images text-blue-600"></i>
+                        <span class="font-semibold">{{ page_obj.paginator.count }} photos</span>
+                    </div>
+                    {% if page_obj.has_other_pages %}
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-layer-group text-purple-600"></i>
+                            <span class="font-semibold">{{ page_obj.paginator.num_pages }} pages</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="{% url 'userApp:photo_list' %}" class="inline-flex items-center space-x-2 bg-white text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition duration-300 border border-gray-200">
+                    <i class="fas fa-images"></i>
+                    <span>View All Photos</span>
+                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'userApp:photo_upload' %}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition duration-300">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload to {{ category.name }}</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Photos Grid -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if page_obj %}
+            <!-- Filters and Sort -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-700 font-medium">Sort by:</span>
+                        <div class="flex space-x-2">
+                            <a href="?sort=newest" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'newest' or not request.GET.sort %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Newest
+                            </a>
+                            <a href="?sort=oldest" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'oldest' %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Oldest
+                            </a>
+                            <a href="?sort=popular" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'popular' %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Most Popular
+                            </a>
+                            <a href="?sort=liked" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'liked' %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Most Liked
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} photos
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Photos Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for photo in page_obj %}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 hover-scale group">
+                    <div class="relative overflow-hidden">
+                        <a href="{% url 'userApp:photo_detail' photo.id %}">
+                            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-full h-64 object-cover group-hover:scale-110 transition duration-500">
+                        </a>
+                        
+                        <!-- Photo Stats Overlay -->
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+                            <i class="fas fa-eye"></i> {{ photo.views }}
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+                            <i class="fas fa-heart"></i> {{ photo.likes.count }}
+                        </div>
+                        
+                        <!-- Category Badge -->
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                {{ photo.category.name }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="font-semibold text-gray-800 mb-2 text-lg">
+                            <a href="{% url 'userApp:photo_detail' photo.id %}" class="hover:text-blue-600 transition duration-300">
+                                {{ photo.title }}
+                            </a>
+                        </h3>
+                        
+                        {% if photo.description %}
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ photo.description|truncatewords:15 }}</p>
+                        {% endif %}
+                        
+                        <!-- Photographer Info -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                {% if photo.photographer.profile_image %}
+                                    <img src="{{ photo.photographer.profile_image.url }}" alt="{{ photo.photographer.username }}" class="w-6 h-6 rounded-full object-cover">
+                                {% else %}
+                                    <div class="w-6 h-6 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-xs"></i>
+                                    </div>
+                                {% endif %}
+                                <a href="{% url 'userApp:user_profile' photo.photographer.username %}" class="text-sm text-gray-600 hover:text-blue-600 transition duration-300">
+                                    {{ photo.photographer.username }}
+                                </a>
+                            </div>
+                            <span class="text-xs text-gray-500">{{ photo.created_at|date:"M d" }}</span>
+                        </div>
+                        
+                        <!-- Tags -->
+                        {% if photo.tags %}
+                            <div class="flex flex-wrap gap-1 mb-4">
+                                {% for tag in photo.tags.split|slice:":3" %}
+                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                                        #{{ tag }}
+                                    </span>
+                                {% endfor %}
+                                {% if photo.tags.split|length > 3 %}
+                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                                        +{{ photo.tags.split|length|add:"-3" }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div class="flex items-center space-x-4">
+                                <button class="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition duration-300 group" onclick="likePhoto({{ photo.id }})">
+                                    <i class="fas fa-heart {% if user in photo.likes.all %}text-red-500{% endif %} group-hover:scale-110 transition duration-200"></i>
+                                    <span class="text-sm">{{ photo.likes.count }}</span>
+                                </button>
+                                <a href="{% url 'userApp:photo_detail' photo.id %}" class="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition duration-300">
+                                    <i class="fas fa-comment"></i>
+                                    <span class="text-sm">{{ photo.comment_set.count }}</span>
+                                </a>
+                            </div>
+                            <a href="{% url 'userApp:photo_detail' photo.id %}" class="text-blue-600 hover:text-blue-700 text-sm font-medium transition duration-300">
+                                View Details <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="mt-12">
+                    <nav class="flex items-center justify-center" aria-label="Pagination">
+                        <ul class="flex items-center space-x-2">
+                            {% if page_obj.has_previous %}
+                                <li>
+                                    <a href="?page=1{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li>
+                                        <span class="px-3 py-2 bg-blue-600 text-white rounded-md font-medium">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li>
+                                        <a href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition duration-200">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li>
+                                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    
+                    <div class="text-center mt-4 text-sm text-gray-600">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </div>
+                </div>
+            {% endif %}
+            
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <div class="text-6xl text-gray-300 mb-6">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <h3 class="text-2xl font-semibold text-gray-600 mb-4">No photos in this category yet</h3>
+                <p class="text-gray-500 mb-8 max-w-md mx-auto">
+                    Be the first to share amazing {{ category.name|lower }} photography in this category!
+                </p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'userApp:photo_upload' %}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition duration-300">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload First Photo</span>
+                    </a>
+                {% else %}
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a href="{% url 'userApp:register' %}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition duration-300">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Join PhotoShare</span>
+                        </a>
+                        <a href="{% url 'userApp:photo_list' %}" class="inline-flex items-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-300">
+                            <i class="fas fa-images"></i>
+                            <span>Browse All Photos</span>
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Related Categories -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Explore Other Categories</h2>
+            <p class="text-xl text-gray-600">Discover more photography styles and genres</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {% for cat in categories %}
+                {% if cat != category %}
+                    <a href="{% url 'userApp:category_photos' cat.id %}" class="group">
+                        <div class="bg-white rounded-xl p-4 text-center hover:shadow-lg transition duration-300 hover-scale border border-gray-100">
+                            <div class="text-2xl text-blue-600 mb-3 group-hover:scale-110 transition duration-300">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-800 mb-1">{{ cat.name }}</h3>
+                            <p class="text-sm text-gray-600">{{ cat.photo_set.count }} photos</p>
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
+<script>
+    function likePhoto(photoId) {
+        fetch(`/photo/${photoId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.liked) {
+                // Update like count and icon
+                const likeButton = event.target.closest('button');
+                const icon = likeButton.querySelector('i');
+                const count = likeButton.querySelector('span');
+                
+                icon.classList.add('text-red-500');
+                count.textContent = data.likes_count;
+            } else {
+                // Update like count and icon
+                const likeButton = event.target.closest('button');
+                const icon = likeButton.querySelector('i');
+                const count = likeButton.querySelector('span');
+                
+                icon.classList.remove('text-red-500');
+                count.textContent = data.likes_count;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+{% endblock %} 

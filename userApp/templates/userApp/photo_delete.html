@@ -1,0 +1,167 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Delete Photo - PhotoShare{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8">
+        <nav class="text-sm text-gray-500 mb-4">
+            <a href="{% url 'userApp:home' %}" class="hover:text-blue-600">Home</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'userApp:photo_list' %}" class="hover:text-blue-600">Photos</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'userApp:photo_detail' photo.id %}" class="hover:text-blue-600">{{ photo.title }}</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-800">Delete</span>
+        </nav>
+        
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Delete Photo</h1>
+        <p class="text-gray-600">Are you sure you want to delete this photo? This action cannot be undone.</p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Photo Preview -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-4">
+                <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-24 h-24 object-cover rounded-lg">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">{{ photo.title }}</h2>
+                    <p class="text-gray-600 text-sm">{{ photo.description|truncatewords:20 }}</p>
+                    <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        <span><i class="fas fa-eye"></i> {{ photo.views }} views</span>
+                        <span><i class="fas fa-heart"></i> {{ photo.likes.count }} likes</span>
+                        <span><i class="fas fa-calendar"></i> {{ photo.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Photo Details -->
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Photo Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                {% if photo.category %}
+                    <div>
+                        <span class="font-medium text-gray-500">Category:</span>
+                        <span class="ml-2 text-gray-800">{{ photo.category.name }}</span>
+                    </div>
+                {% endif %}
+                
+                {% if photo.location %}
+                    <div>
+                        <span class="font-medium text-gray-500">Location:</span>
+                        <span class="ml-2 text-gray-800">{{ photo.location }}</span>
+                    </div>
+                {% endif %}
+                
+                {% if photo.camera_settings %}
+                    <div>
+                        <span class="font-medium text-gray-500">Camera Settings:</span>
+                        <span class="ml-2 text-gray-800">{{ photo.camera_settings }}</span>
+                    </div>
+                {% endif %}
+                
+                <div>
+                    <span class="font-medium text-gray-500">Privacy:</span>
+                    <span class="ml-2 text-gray-800">
+                        {% if photo.is_public %}
+                            <span class="text-green-600">Public</span>
+                        {% else %}
+                            <span class="text-orange-600">Private</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Warning Message -->
+        <div class="p-6 bg-red-50 border-b border-red-200">
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-red-800 mb-2">Warning</h3>
+                    <ul class="text-red-700 space-y-1">
+                        <li>• This action cannot be undone</li>
+                        <li>• All comments on this photo will be permanently deleted</li>
+                        <li>• All likes on this photo will be removed</li>
+                        <li>• The photo will be removed from all albums</li>
+                        <li>• The image file will be permanently deleted from the server</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="p-6">
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="submit" class="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition duration-300 font-semibold">
+                        <i class="fas fa-trash mr-2"></i> Delete Photo Permanently
+                    </button>
+                    
+                    <a href="{% url 'userApp:photo_detail' photo.id %}" class="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition duration-300 font-semibold text-center">
+                        <i class="fas fa-times mr-2"></i> Cancel
+                    </a>
+                </div>
+                
+                <div class="text-center">
+                    <a href="{% url 'userApp:photo_edit' photo.id %}" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-edit mr-1"></i> Edit photo instead
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Alternative Actions -->
+    <div class="mt-8 bg-blue-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-blue-800 mb-3">
+            <i class="fas fa-lightbulb"></i> Alternative Actions
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white rounded-lg p-4 border border-blue-200">
+                <h4 class="font-semibold text-gray-800 mb-2">Make Private</h4>
+                <p class="text-gray-600 text-sm mb-3">Hide the photo from public view instead of deleting it</p>
+                <a href="{% url 'userApp:photo_edit' photo.id %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    <i class="fas fa-eye-slash mr-1"></i> Make Private
+                </a>
+            </div>
+            
+            <div class="bg-white rounded-lg p-4 border border-blue-200">
+                <h4 class="font-semibold text-gray-800 mb-2">Archive</h4>
+                <p class="text-gray-600 text-sm mb-3">Move to a private album for safekeeping</p>
+                <a href="{% url 'userApp:album_create' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    <i class="fas fa-archive mr-1"></i> Create Archive Album
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom styling for better visual hierarchy */
+    .bg-red-50 {
+        background-color: #fef2f2;
+    }
+    
+    .border-red-200 {
+        border-color: #fecaca;
+    }
+    
+    .text-red-800 {
+        color: #991b1b;
+    }
+    
+    .text-red-700 {
+        color: #b91c1c;
+    }
+    
+    .text-red-500 {
+        color: #ef4444;
+    }
+</style>
+{% endblock %} 

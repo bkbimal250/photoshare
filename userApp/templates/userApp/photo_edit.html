@@ -1,0 +1,513 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Edit Photo - PhotoShare{% endblock %}
+
+{% block content %}
+<!-- Edit Photo Header Section -->
+<section class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16 relative overflow-hidden">
+    <!-- Background Decorative Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-10 left-10 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-float"></div>
+        <div class="absolute bottom-10 right-10 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-float" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <!-- Breadcrumb -->
+            <nav class="flex justify-center mb-6" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{% url 'userApp:home' %}" class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-home mr-2"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="{% url 'userApp:user_photos' username=user.username %}" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition duration-300">
+                                My Photos
+                            </a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-sm font-medium text-blue-600">Edit Photo</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            
+            <div class="mb-8">
+                <div class="inline-flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                    <i class="fas fa-edit text-blue-600"></i>
+                    <span>Edit Photo</span>
+                </div>
+            </div>
+            
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+                Edit Your Photo
+            </h1>
+            
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Update your photo details, description, and settings to make it perfect
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Edit Photo Form Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Current Photo Preview -->
+            <div class="lg:col-span-1">
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 sticky top-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Current Photo</h2>
+                    
+                    <div class="relative overflow-hidden rounded-xl shadow-xl mb-6">
+                        <img src="{{ photo.image.url }}" 
+                             alt="{{ photo.title }}" 
+                             class="w-full h-80 object-cover">
+                        
+                        <!-- Photo Stats Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 hover:opacity-60 transition duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <div class="flex items-center justify-between text-white">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="flex items-center space-x-1">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="text-sm font-medium">{{ photo.views }}</span>
+                                        </span>
+                                        <span class="flex items-center space-x-1">
+                                            <i class="fas fa-heart"></i>
+                                            <span class="text-sm font-medium">{{ photo.likes.count }}</span>
+                                        </span>
+                                    </div>
+                                    <div class="text-sm font-medium">
+                                        {{ photo.created_at|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo Details -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Title:</span>
+                            <span class="font-medium text-gray-800">{{ photo.title }}</span>
+                        </div>
+                        
+                        {% if photo.category %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Category:</span>
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {{ photo.category.name }}
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Privacy:</span>
+                            <span class="bg-{% if photo.is_public %}green{% else %}orange{% endif %}-100 text-{% if photo.is_public %}green{% else %}orange{% endif %}-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {% if photo.is_public %}Public{% else %}Private{% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Uploaded:</span>
+                            <span class="font-medium text-gray-800">{{ photo.created_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <a href="{% url 'userApp:photo_detail' photo.id %}" 
+                               class="flex items-center space-x-3 text-blue-600 hover:text-blue-800 transition duration-300">
+                                <i class="fas fa-eye"></i>
+                                <span>View Photo</span>
+                            </a>
+                            <a href="{% url 'userApp:photo_delete' photo.id %}" 
+                               class="flex items-center space-x-3 text-red-600 hover:text-red-800 transition duration-300">
+                                <i class="fas fa-trash"></i>
+                                <span>Delete Photo</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Form -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Edit Details</h2>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <!-- Title Field -->
+                        <div>
+                            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Photo Title <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="{{ form.title.name }}" 
+                                       id="{{ form.title.id_for_label }}"
+                                       value="{{ form.title.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="Enter a descriptive title for your photo">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-heading text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.title.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.title.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Description Field -->
+                        <div>
+                            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Description
+                            </label>
+                            <div class="relative">
+                                <textarea name="{{ form.description.name }}" 
+                                          id="{{ form.description.id_for_label }}"
+                                          rows="4"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 resize-none"
+                                          placeholder="Tell the story behind your photo...">{{ form.description.value|default:'' }}</textarea>
+                                <div class="absolute top-3 right-3 pointer-events-none">
+                                    <i class="fas fa-align-left text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="mt-1 text-sm text-gray-500">
+                                <span id="char-count">0</span> characters
+                            </div>
+                            {% if form.description.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.description.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Category Field -->
+                        <div>
+                            <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Category
+                            </label>
+                            <div class="relative">
+                                <select name="{{ form.category.name }}" 
+                                        id="{{ form.category.id_for_label }}"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 appearance-none">
+                                    <option value="">Select a category</option>
+                                    {% for choice in form.category.field.choices %}
+                                        <option value="{{ choice.0 }}" {% if form.category.value == choice.0 %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.category.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.category.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Tags Field -->
+                        <div>
+                            <label for="{{ form.tags.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Tags
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="{{ form.tags.name }}" 
+                                       id="{{ form.tags.id_for_label }}"
+                                       value="{{ form.tags.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="nature, landscape, sunset (comma separated)">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-tags text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="mt-1 text-sm text-gray-500">
+                                Separate tags with commas
+                            </div>
+                            {% if form.tags.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.tags.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Location Field -->
+                        <div>
+                            <label for="{{ form.location.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Location
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="{{ form.location.name }}" 
+                                       id="{{ form.location.id_for_label }}"
+                                       value="{{ form.location.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="Where was this photo taken?">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.location.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.location.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Privacy Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Privacy Settings
+                            </label>
+                            <div class="space-y-3">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" 
+                                           name="{{ form.is_public.name }}" 
+                                           value="True"
+                                           {% if form.is_public.value %}checked{% endif %}
+                                           class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-globe text-green-600"></i>
+                                        <span class="text-gray-700">Public - Anyone can view this photo</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" 
+                                           name="{{ form.is_public.name }}" 
+                                           value="False"
+                                           {% if not form.is_public.value %}checked{% endif %}
+                                           class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-lock text-orange-600"></i>
+                                        <span class="text-gray-700">Private - Only you can view this photo</span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.is_public.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.is_public.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <button type="submit" 
+                                    class="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
+                                <i class="fas fa-save text-lg group-hover:rotate-12 transition duration-300"></i>
+                                <span>Save Changes</span>
+                            </button>
+                            
+                            <a href="{% url 'userApp:photo_detail' photo.id %}" 
+                               class="group bg-gray-100 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                                <i class="fas fa-times text-lg group-hover:rotate-12 transition duration-300"></i>
+                                <span>Cancel</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tips Section -->
+<section class="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Photo Editing Tips</h2>
+            <p class="text-xl text-gray-600">Make your photos stand out with these helpful suggestions</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-heading text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Descriptive Titles</h3>
+                <p class="text-gray-600 text-sm">Use clear, descriptive titles that help viewers understand what they're looking at.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-tags text-green-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Relevant Tags</h3>
+                <p class="text-gray-600 text-sm">Add relevant tags to help others discover your photos through search.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-map-marker-alt text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Location Details</h3>
+                <p class="text-gray-600 text-sm">Include location information to help viewers understand where the photo was taken.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-align-left text-orange-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Story Behind</h3>
+                <p class="text-gray-600 text-sm">Share the story behind your photo to make it more engaging and personal.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-folder text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Right Category</h3>
+                <p class="text-gray-600 text-sm">Choose the most appropriate category to help organize your photo collection.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-eye text-indigo-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Privacy Settings</h3>
+                <p class="text-gray-600 text-sm">Consider your privacy settings based on who you want to see your photos.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #2563eb, #7c3aed);
+    }
+</style>
+
+<script>
+    // Character counter for description
+    const descriptionTextarea = document.getElementById('{{ form.description.id_for_label }}');
+    const charCount = document.getElementById('char-count');
+    
+    function updateCharCount() {
+        const count = descriptionTextarea.value.length;
+        charCount.textContent = count;
+        
+        if (count > 500) {
+            charCount.classList.add('text-red-600');
+        } else {
+            charCount.classList.remove('text-red-600');
+        }
+    }
+    
+    descriptionTextarea.addEventListener('input', updateCharCount);
+    updateCharCount(); // Initial count
+    
+    // Auto-resize textarea
+    function autoResize() {
+        descriptionTextarea.style.height = 'auto';
+        descriptionTextarea.style.height = descriptionTextarea.scrollHeight + 'px';
+    }
+    
+    descriptionTextarea.addEventListener('input', autoResize);
+    autoResize(); // Initial resize
+    
+    // Form validation
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        const title = document.getElementById('{{ form.title.id_for_label }}').value.trim();
+        
+        if (!title) {
+            e.preventDefault();
+            alert('Please enter a title for your photo.');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Saving...</span>';
+        submitBtn.disabled = true;
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add parallax effect to floating elements
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.animate-float');
+        
+        parallaxElements.forEach((element, index) => {
+            const speed = 0.5 + (index * 0.1);
+            element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+    
+    // Focus on first input field
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstInput = document.querySelector('input[type="text"]');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    });
+</script>
+{% endblock %} 

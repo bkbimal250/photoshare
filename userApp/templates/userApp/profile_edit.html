@@ -1,0 +1,514 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Edit Profile - PhotoShare{% endblock %}
+
+{% block content %}
+<!-- Edit Profile Header Section -->
+<section class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16 relative overflow-hidden">
+    <!-- Background Decorative Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-10 left-10 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-float"></div>
+        <div class="absolute bottom-10 right-10 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-float" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <!-- Breadcrumb -->
+            <nav class="flex justify-center mb-6" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{% url 'userApp:home' %}" class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-home mr-2"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="{% url 'userApp:user_profile' username=user.username %}" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition duration-300">
+                                Profile
+                            </a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-sm font-medium text-blue-600">Edit Profile</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            
+            <div class="mb-8">
+                <div class="inline-flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                    <i class="fas fa-user-edit text-blue-600"></i>
+                    <span>Edit Profile</span>
+                </div>
+            </div>
+            
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+                Edit Your Profile
+            </h1>
+            
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Update your personal information, profile picture, and preferences
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Edit Profile Form Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Current Profile Preview -->
+            <div class="lg:col-span-1">
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 sticky top-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Current Profile</h2>
+                    
+                    <!-- Profile Image Preview -->
+                    <div class="text-center mb-6">
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" 
+                                 alt="{{ user.username }}" 
+                                 class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-2xl mx-auto mb-4">
+                        {% else %}
+                            <div class="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-4 border-white shadow-2xl mx-auto mb-4">
+                                <i class="fas fa-user text-white text-4xl"></i>
+                            </div>
+                        {% endif %}
+                        <h3 class="text-xl font-bold text-gray-800">{{ user.get_full_name|default:user.username }}</h3>
+                        <p class="text-gray-600">@{{ user.username }}</p>
+                    </div>
+                    
+                    <!-- Current Profile Details -->
+                    <div class="space-y-4">
+                        {% if user.bio %}
+                        <div>
+                            <span class="text-sm text-gray-600">Bio:</span>
+                            <p class="font-medium text-gray-800">{{ user.bio }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.location %}
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-map-marker-alt text-blue-600"></i>
+                            <span class="text-gray-800">{{ user.location }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.website %}
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-globe text-green-600"></i>
+                            <a href="{{ user.website }}" target="_blank" class="text-blue-600 hover:text-blue-800 transition duration-300">{{ user.website }}</a>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-calendar-alt text-purple-600"></i>
+                            <span class="text-gray-800">Member since {{ user.date_joined|date:"F Y" }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Stats -->
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Your Stats</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-blue-600">{{ user.photos.count }}</div>
+                                <div class="text-sm text-gray-600">Photos</div>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-purple-600">{{ user.followers.count }}</div>
+                                <div class="text-sm text-gray-600">Followers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Form -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Update Information</h2>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <!-- Profile Image Field -->
+                        <div>
+                            <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Profile Picture
+                            </label>
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    {% if user.profile_image %}
+                                        <img src="{{ user.profile_image.url }}" 
+                                             alt="Current profile" 
+                                             class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
+                                    {% else %}
+                                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-2 border-gray-200">
+                                            <i class="fas fa-user text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" 
+                                           name="{{ form.profile_image.name }}" 
+                                           id="{{ form.profile_image.id_for_label }}"
+                                           accept="image/*"
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-300">
+                                    <p class="text-xs text-gray-500 mt-1">Recommended: Square image, max 2MB</p>
+                                </div>
+                            </div>
+                            {% if form.profile_image.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.profile_image.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- First Name Field -->
+                        <div>
+                            <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                First Name
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="{{ form.first_name.name }}" 
+                                       id="{{ form.first_name.id_for_label }}"
+                                       value="{{ form.first_name.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="Enter your first name">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.first_name.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.first_name.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Last Name Field -->
+                        <div>
+                            <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Last Name
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="{{ form.last_name.name }}" 
+                                       id="{{ form.last_name.id_for_label }}"
+                                       value="{{ form.last_name.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="Enter your last name">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.last_name.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.last_name.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Email Field -->
+                        <div>
+                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address
+                            </label>
+                            <div class="relative">
+                                <input type="email" 
+                                       name="{{ form.email.name }}" 
+                                       id="{{ form.email.id_for_label }}"
+                                       value="{{ form.email.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="Enter your email address">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-envelope text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.email.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Bio Field -->
+                        <div>
+                            <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Bio
+                            </label>
+                            <div class="relative">
+                                <textarea name="{{ form.bio.name }}" 
+                                          id="{{ form.bio.id_for_label }}"
+                                          rows="4"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 resize-none"
+                                          placeholder="Tell us about yourself...">{{ form.bio.value|default:'' }}</textarea>
+                                <div class="absolute top-3 right-3 pointer-events-none">
+                                    <i class="fas fa-align-left text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="mt-1 text-sm text-gray-500">
+                                <span id="bio-char-count">0</span> characters
+                            </div>
+                            {% if form.bio.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.bio.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Location Field -->
+                        <div>
+                            <label for="{{ form.location.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Location
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="{{ form.location.name }}" 
+                                       id="{{ form.location.id_for_label }}"
+                                       value="{{ form.location.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="Where are you located?">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.location.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.location.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Website Field -->
+                        <div>
+                            <label for="{{ form.website.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Website
+                            </label>
+                            <div class="relative">
+                                <input type="url" 
+                                       name="{{ form.website.name }}" 
+                                       id="{{ form.website.id_for_label }}"
+                                       value="{{ form.website.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                                       placeholder="https://yourwebsite.com">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-globe text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if form.website.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.website.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <button type="submit" 
+                                    class="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
+                                <i class="fas fa-save text-lg group-hover:rotate-12 transition duration-300"></i>
+                                <span>Save Changes</span>
+                            </button>
+                            
+                            <a href="{% url 'userApp:user_profile' username=user.username %}" 
+                               class="group bg-gray-100 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                                <i class="fas fa-times text-lg group-hover:rotate-12 transition duration-300"></i>
+                                <span>Cancel</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tips Section -->
+<section class="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Profile Tips</h2>
+            <p class="text-xl text-gray-600">Make your profile stand out with these helpful suggestions</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-camera text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Profile Picture</h3>
+                <p class="text-gray-600 text-sm">Use a clear, professional photo that represents you well.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-align-left text-green-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Compelling Bio</h3>
+                <p class="text-gray-600 text-sm">Write a brief, engaging bio that tells your photography story.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-map-marker-alt text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Location</h3>
+                <p class="text-gray-600 text-sm">Add your location to connect with photographers in your area.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-globe text-orange-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Website</h3>
+                <p class="text-gray-600 text-sm">Link to your portfolio or social media to showcase more work.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-user text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Real Name</h3>
+                <p class="text-gray-600 text-sm">Use your real name to build trust and recognition.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300">
+                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                    <i class="fas fa-envelope text-indigo-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Valid Email</h3>
+                <p class="text-gray-600 text-sm">Keep your email updated for important notifications.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #2563eb, #7c3aed);
+    }
+</style>
+
+<script>
+    // Character counter for bio
+    const bioTextarea = document.getElementById('{{ form.bio.id_for_label }}');
+    const bioCharCount = document.getElementById('bio-char-count');
+    
+    function updateBioCharCount() {
+        const count = bioTextarea.value.length;
+        bioCharCount.textContent = count;
+        
+        if (count > 200) {
+            bioCharCount.classList.add('text-red-600');
+        } else {
+            bioCharCount.classList.remove('text-red-600');
+        }
+    }
+    
+    bioTextarea.addEventListener('input', updateBioCharCount);
+    updateBioCharCount(); // Initial count
+    
+    // Auto-resize textarea
+    function autoResize() {
+        bioTextarea.style.height = 'auto';
+        bioTextarea.style.height = bioTextarea.scrollHeight + 'px';
+    }
+    
+    bioTextarea.addEventListener('input', autoResize);
+    autoResize(); // Initial resize
+    
+    // Form validation
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        const email = document.getElementById('{{ form.email.id_for_label }}').value.trim();
+        
+        if (!email) {
+            e.preventDefault();
+            alert('Please enter your email address.');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Saving...</span>';
+        submitBtn.disabled = true;
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add parallax effect to floating elements
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.animate-float');
+        
+        parallaxElements.forEach((element, index) => {
+            const speed = 0.5 + (index * 0.1);
+            element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+    
+    // Focus on first input field
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstInput = document.querySelector('input[type="text"]');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    });
+</script>
+{% endblock %} 

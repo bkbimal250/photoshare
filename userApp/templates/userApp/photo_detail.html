@@ -1,0 +1,270 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}{{ photo.title }} - PhotoShare{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Photo Header -->
+    <div class="mb-8">
+        <nav class="text-sm text-gray-500 mb-4">
+            <a href="{% url 'userApp:home' %}" class="hover:text-blue-600">Home</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'userApp:photo_list' %}" class="hover:text-blue-600">Photos</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-800">{{ photo.title }}</span>
+        </nav>
+        
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ photo.title }}</h1>
+                <p class="text-gray-600 mb-4">
+                    by <a href="{% url 'userApp:user_profile' photo.photographer.username %}" class="text-blue-600 hover:text-blue-800">
+                        {{ photo.photographer.username }}
+                    </a>
+                    <span class="mx-2">•</span>
+                    <span>{{ photo.created_at|date:"M d, Y" }}</span>
+                </p>
+            </div>
+            
+            {% if user.is_authenticated and user == photo.photographer %}
+                <div class="flex space-x-2">
+                    <a href="{% url 'userApp:photo_edit' photo.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'userApp:photo_delete' photo.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Photo -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-full h-auto">
+            </div>
+            
+            <!-- Photo Actions -->
+            <div class="bg-white rounded-lg shadow-md p-4 mt-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        {% if user.is_authenticated %}
+                            <button onclick="likePhoto({{ photo.id }})" class="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition duration-300" id="like-btn-{{ photo.id }}">
+                                <i class="fas fa-heart {% if user in photo.likes.all %}text-red-500{% endif %}" id="heart-icon-{{ photo.id }}"></i>
+                                <span id="likes-count-{{ photo.id }}">{{ photo.likes.count }}</span>
+                            </button>
+                        {% else %}
+                            <span class="flex items-center space-x-2 text-gray-600">
+                                <i class="fas fa-heart text-red-500"></i>
+                                <span>{{ photo.likes.count }}</span>
+                            </span>
+                        {% endif %}
+                        
+                        <span class="flex items-center space-x-2 text-gray-600">
+                            <i class="fas fa-eye"></i>
+                            <span>{{ photo.views }}</span>
+                        </span>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="sharePhoto()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-300">
+                            <i class="fas fa-share"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Photo Details Sidebar -->
+        <div class="space-y-6">
+            <!-- Description -->
+            {% if photo.description %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Description</h3>
+                    <p class="text-gray-600">{{ photo.description|linebreaks }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Photo Details -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Photo Details</h3>
+                <div class="space-y-3">
+                    {% if photo.category %}
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Category:</span>
+                            <a href="{% url 'userApp:category_photos' photo.category.id %}" class="ml-2 text-blue-600 hover:text-blue-800">
+                                {{ photo.category.name }}
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    {% if photo.location %}
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Location:</span>
+                            <span class="ml-2 text-gray-800">{{ photo.location }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if photo.camera_settings %}
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Camera Settings:</span>
+                            <span class="ml-2 text-gray-800">{{ photo.camera_settings }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Uploaded:</span>
+                        <span class="ml-2 text-gray-800">{{ photo.created_at|date:"F d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tags -->
+            {% if photo.tags %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Tags</h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in photo.get_tags_list %}
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Comments Section -->
+    <div class="mt-12">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6">Comments</h3>
+            
+            {% if user.is_authenticated %}
+                <!-- Comment Form -->
+                <form method="POST" class="mb-8">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        {{ comment_form.content }}
+                        {% if comment_form.content.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in comment_form.content.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-paper-plane"></i> Post Comment
+                    </button>
+                </form>
+            {% else %}
+                <div class="mb-8 p-4 bg-gray-50 rounded-lg text-center">
+                    <p class="text-gray-600">Please <a href="{% url 'admin:login' %}" class="text-blue-600 hover:text-blue-800">log in</a> to leave a comment.</p>
+                </div>
+            {% endif %}
+            
+            <!-- Comments List -->
+            <div class="space-y-4">
+                {% for comment in photo.comments.all %}
+                    <div class="border-b border-gray-200 pb-4 last:border-b-0">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                {% if comment.user.profile_image %}
+                                    <img src="{{ comment.user.profile_image.url }}" alt="{{ comment.user.username }}" class="w-10 h-10 rounded-full">
+                                {% else %}
+                                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <a href="{% url 'userApp:user_profile' comment.user.username %}" class="font-semibold text-gray-800 hover:text-blue-600">
+                                        {{ comment.user.username }}
+                                    </a>
+                                    <span class="text-sm text-gray-500">{{ comment.created_at|timesince }} ago</span>
+                                </div>
+                                <p class="text-gray-700">{{ comment.content|linebreaks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-comments text-4xl mb-4"></i>
+                        <p>No comments yet. Be the first to comment!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Photos -->
+    {% if related_photos %}
+        <div class="mt-12">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">Related Photos</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for related_photo in related_photos %}
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                        <a href="{% url 'userApp:photo_detail' related_photo.id %}">
+                            <img src="{{ related_photo.image.url }}" alt="{{ related_photo.title }}" class="w-full h-48 object-cover">
+                        </a>
+                        <div class="p-4">
+                            <h4 class="font-semibold text-gray-800 mb-1">
+                                <a href="{% url 'userApp:photo_detail' related_photo.id %}" class="hover:text-blue-600">
+                                    {{ related_photo.title }}
+                                </a>
+                            </h4>
+                            <p class="text-sm text-gray-500">
+                                by <a href="{% url 'userApp:user_profile' related_photo.photographer.username %}" class="hover:text-blue-600">
+                                    {{ related_photo.photographer.username }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function likePhoto(photoId) {
+    fetch(`/photo/${photoId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        const heartIcon = document.getElementById(`heart-icon-${photoId}`);
+        const likesCount = document.getElementById(`likes-count-${photoId}`);
+        
+        if (data.liked) {
+            heartIcon.classList.add('text-red-500');
+        } else {
+            heartIcon.classList.remove('text-red-500');
+        }
+        
+        likesCount.textContent = data.likes_count;
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function sharePhoto() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ photo.title }}',
+            text: 'Check out this amazing photo!',
+            url: window.location.href,
+        });
+    } else {
+        // Fallback: copy URL to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Link copied to clipboard!');
+        });
+    }
+}
+</script>
+{% endblock %} 

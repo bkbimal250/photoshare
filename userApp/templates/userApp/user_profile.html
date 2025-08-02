@@ -1,0 +1,445 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}{{ profile_user.username }}'s Profile - PhotoShare{% endblock %}
+
+{% block content %}
+<!-- Profile Header Section -->
+<section class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16 relative overflow-hidden">
+    <!-- Background Decorative Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-10 left-10 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-float"></div>
+        <div class="absolute bottom-10 right-10 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-float" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center lg:items-start space-y-8 lg:space-y-0 lg:space-x-12">
+            <!-- Profile Image -->
+            <div class="flex-shrink-0">
+                {% if profile_user.profile_image %}
+                    <img src="{{ profile_user.profile_image.url }}" 
+                         alt="{{ profile_user.username }}" 
+                         class="w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-2xl">
+                {% else %}
+                    <div class="w-32 h-32 lg:w-40 lg:h-40 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-4 border-white shadow-2xl">
+                        <i class="fas fa-user text-white text-4xl lg:text-5xl"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Profile Information -->
+            <div class="flex-1 text-center lg:text-left">
+                <div class="mb-6">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
+                        {{ profile_user.get_full_name|default:profile_user.username }}
+                    </h1>
+                    <p class="text-lg text-gray-600 mb-4">@{{ profile_user.username }}</p>
+                    
+                    {% if profile_user.bio %}
+                        <p class="text-gray-700 max-w-2xl leading-relaxed">{{ profile_user.bio }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Profile Stats -->
+                <div class="grid grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-4 shadow-lg">
+                        <div class="text-2xl font-bold text-blue-600 mb-1">{{ photos_count }}</div>
+                        <div class="text-sm text-gray-600">Photos</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-lg">
+                        <div class="text-2xl font-bold text-purple-600 mb-1">{{ followers_count }}</div>
+                        <div class="text-sm text-gray-600">Followers</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-lg">
+                        <div class="text-2xl font-bold text-green-600 mb-1">{{ following_count }}</div>
+                        <div class="text-sm text-gray-600">Following</div>
+                    </div>
+                </div>
+                
+                <!-- Profile Actions -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    {% if user.is_authenticated and user != profile_user %}
+                        <button onclick="followUser('{{ profile_user.username }}')" 
+                                id="follow-btn"
+                                class="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
+                            <i class="fas fa-user-plus text-lg group-hover:rotate-12 transition duration-300"></i>
+                            <span id="follow-text">{% if is_following %}Unfollow{% else %}Follow{% endif %}</span>
+                        </button>
+                    {% endif %}
+                    
+                    {% if user == profile_user %}
+                        <a href="{% url 'userApp:profile_edit' %}" 
+                           class="group bg-gradient-to-r from-green-600 to-teal-600 text-white px-8 py-3 rounded-full font-semibold hover:from-green-700 hover:to-teal-700 transition duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
+                            <i class="fas fa-edit text-lg group-hover:rotate-12 transition duration-300"></i>
+                            <span>Edit Profile</span>
+                        </a>
+                        
+                        <a href="{% url 'userApp:user_photos' username=profile_user.username %}" 
+                           class="group bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-3 rounded-full font-semibold hover:from-orange-700 hover:to-red-700 transition duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
+                            <i class="fas fa-images text-lg group-hover:rotate-12 transition duration-300"></i>
+                            <span>My Photos</span>
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'userApp:photo_upload' %}" 
+                       class="group bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-full font-semibold hover:from-purple-700 hover:to-pink-700 transition duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
+                        <i class="fas fa-upload text-lg group-hover:rotate-12 transition duration-300"></i>
+                        <span>Upload Photo</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- User Information Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- User Details -->
+            <div class="lg:col-span-1">
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 sticky top-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">About {{ profile_user.username }}</h2>
+                    
+                    <div class="space-y-6">
+                        {% if profile_user.location %}
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-map-marker-alt text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Location</p>
+                                <p class="font-medium text-gray-800">{{ profile_user.location }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if profile_user.website %}
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-globe text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Website</p>
+                                <a href="{{ profile_user.website }}" target="_blank" class="font-medium text-blue-600 hover:text-blue-800 transition duration-300">{{ profile_user.website }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Member Since</p>
+                                <p class="font-medium text-gray-800">{{ profile_user.date_joined|date:"F Y" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-camera text-orange-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Total Photos</p>
+                                <p class="font-medium text-gray-800">{{ photos_count }} photos</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Links (if any) -->
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Connect</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white hover:bg-blue-700 transition duration-300">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-blue-400 rounded-lg flex items-center justify-center text-white hover:bg-blue-500 transition duration-300">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center text-white hover:bg-pink-700 transition duration-300">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-white hover:bg-gray-900 transition duration-300">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Photos Grid -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Photos by {{ profile_user.username }}</h2>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">{{ photos_count }} photos</span>
+                    </div>
+                </div>
+                
+                {% if page_obj %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for photo in page_obj %}
+                        <div class="group bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 border border-gray-100">
+                            <div class="relative overflow-hidden">
+                                <a href="{% url 'userApp:photo_detail' photo.id %}">
+                                    <img src="{{ photo.image.url }}" 
+                                         alt="{{ photo.title }}" 
+                                         class="w-full h-48 object-cover group-hover:scale-110 transition duration-700">
+                                </a>
+                                
+                                <!-- Overlay on hover -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-60 transition duration-300"></div>
+                                
+                                <!-- Stats badges -->
+                                <div class="absolute top-4 right-4 bg-black bg-opacity-70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-eye mr-1"></i> {{ photo.views }}
+                                </div>
+                                <div class="absolute bottom-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-heart mr-1"></i> {{ photo.likes.count }}
+                                </div>
+                                
+                                <!-- Category badge -->
+                                {% if photo.category %}
+                                <div class="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    {{ photo.category.name }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="p-6">
+                                <h3 class="font-bold text-gray-800 mb-3 text-lg group-hover:text-blue-600 transition duration-300">
+                                    <a href="{% url 'userApp:photo_detail' photo.id %}">
+                                        {{ photo.title }}
+                                    </a>
+                                </h3>
+                                
+                                {% if photo.description %}
+                                    <p class="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                                        {{ photo.description|truncatewords:15 }}
+                                    </p>
+                                {% endif %}
+                                
+                                <!-- Tags -->
+                                {% if photo.tags %}
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        {% for tag in photo.tags.all|slice:":3" %}
+                                            <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                                                #{{ tag.name }}
+                                            </span>
+                                        {% endfor %}
+                                        {% if photo.tags.count > 3 %}
+                                            <span class="bg-gray-100 text-gray-500 px-2 py-1 rounded-full text-xs">
+                                                +{{ photo.tags.count|add:"-3" }} more
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-white text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-800">{{ photo.photographer.username }}</p>
+                                            <p class="text-xs text-gray-500">{{ photo.created_at|date:"M d, Y" }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Quick actions -->
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-gray-400 hover:text-red-500 transition duration-300" 
+                                                onclick="likePhoto({{ photo.id }})" 
+                                                id="like-btn-{{ photo.id }}">
+                                            <i class="fas fa-heart {% if user in photo.likes.all %}text-red-500{% endif %}"></i>
+                                        </button>
+                                        <a href="{% url 'userApp:photo_detail' photo.id %}" 
+                                           class="text-gray-400 hover:text-blue-500 transition duration-300">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <div class="mt-12 flex justify-center">
+                        <nav class="flex items-center space-x-2">
+                            {% if page_obj.has_previous %}
+                                <a href="?page={{ page_obj.previous_page_number }}" 
+                                   class="px-4 py-2 text-gray-500 hover:text-blue-600 transition duration-300">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <span class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">{{ num }}</span>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <a href="?page={{ num }}" 
+                                       class="px-4 py-2 text-gray-600 hover:text-blue-600 transition duration-300">
+                                        {{ num }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}" 
+                                   class="px-4 py-2 text-gray-500 hover:text-blue-600 transition duration-300">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                    {% endif %}
+                    
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-16">
+                        <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-camera text-4xl text-gray-400"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-gray-600 mb-4">No photos yet</h3>
+                        <p class="text-gray-500 mb-8 max-w-md mx-auto">
+                            {% if user == profile_user %}
+                                You haven't uploaded any photos yet. Start sharing your photography with the world!
+                            {% else %}
+                                {{ profile_user.username }} hasn't uploaded any photos yet.
+                            {% endif %}
+                        </p>
+                        
+                        {% if user == profile_user %}
+                        <a href="{% url 'userApp:photo_upload' %}" 
+                           class="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105 hover:shadow-xl">
+                            <i class="fas fa-upload"></i>
+                            <span>Upload Your First Photo</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #2563eb, #7c3aed);
+    }
+</style>
+
+<script>
+    // Follow/unfollow functionality
+    function followUser(username) {
+        fetch(`/profile/${username}/follow/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const followBtn = document.getElementById('follow-btn');
+            const followText = document.getElementById('follow-text');
+            
+            if (data.is_following) {
+                followText.textContent = 'Unfollow';
+                followBtn.classList.remove('from-blue-600', 'to-purple-600');
+                followBtn.classList.add('from-red-600', 'to-pink-600');
+            } else {
+                followText.textContent = 'Follow';
+                followBtn.classList.remove('from-red-600', 'to-pink-600');
+                followBtn.classList.add('from-blue-600', 'to-purple-600');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+    // Like photo functionality
+    function likePhoto(photoId) {
+        fetch(`/photo/${photoId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const likeBtn = document.getElementById(`like-btn-${photoId}`);
+            const icon = likeBtn.querySelector('i');
+            
+            if (data.liked) {
+                icon.classList.add('text-red-500');
+            } else {
+                icon.classList.remove('text-red-500');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add parallax effect to floating elements
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.animate-float');
+        
+        parallaxElements.forEach((element, index) => {
+            const speed = 0.5 + (index * 0.1);
+            element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,324 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}My Photos - PhotoShare{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">My Photos</h1>
+            <p class="text-gray-600">Manage and organize your photography collection</p>
+        </div>
+        
+        <div class="flex space-x-3">
+            <a href="{% url 'userApp:photo_upload' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+                <i class="fas fa-plus"></i> Upload New Photo
+            </a>
+            <a href="{% url 'userApp:album_create' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                <i class="fas fa-folder-plus"></i> Create Album
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <i class="fas fa-images text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Total Photos</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ page_obj.paginator.count }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <i class="fas fa-eye text-green-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Total Views</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        {% with total_views=page_obj.object_list|length %}
+                            {% for photo in page_obj.object_list %}
+                                {% if forloop.first %}
+                                    {% with photo.views as total %}
+                                        {% for p in page_obj.object_list %}
+                                            {% if not forloop.first %}
+                                                {% with total|add:p.views as total %}{% endwith %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {{ total }}
+                                    {% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-red-100 rounded-lg">
+                    <i class="fas fa-heart text-red-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Total Likes</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        {% with total_likes=0 %}
+                            {% for photo in page_obj.object_list %}
+                                {% with total_likes|add:photo.likes.count as total_likes %}{% endwith %}
+                            {% endfor %}
+                            {{ total_likes }}
+                        {% endwith %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-purple-100 rounded-lg">
+                    <i class="fas fa-comments text-purple-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Total Comments</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        {% with total_comments=0 %}
+                            {% for photo in page_obj.object_list %}
+                                {% with total_comments|add:photo.comments.count as total_comments %}{% endwith %}
+                            {% endfor %}
+                            {{ total_comments }}
+                        {% endwith %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <form method="GET" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search My Photos</label>
+                <input type="text" name="search" id="search" value="{{ request.GET.search }}" 
+                       placeholder="Search by title, description, tags..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <!-- Privacy Filter -->
+            <div>
+                <label for="privacy" class="block text-sm font-medium text-gray-700 mb-2">Privacy</label>
+                <select name="privacy" id="privacy" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Photos</option>
+                    <option value="public" {% if request.GET.privacy == 'public' %}selected{% endif %}>Public Only</option>
+                    <option value="private" {% if request.GET.privacy == 'private' %}selected{% endif %}>Private Only</option>
+                </select>
+            </div>
+            
+            <!-- Sort -->
+            <div>
+                <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                <select name="sort" id="sort" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="newest" {% if request.GET.sort == 'newest' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+                    <option value="oldest" {% if request.GET.sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                    <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                    <option value="views" {% if request.GET.sort == 'views' %}selected{% endif %}>Most Views</option>
+                    <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title A-Z</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="flex justify-between items-center">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                <i class="fas fa-search"></i> Apply Filters
+            </button>
+            
+            {% if request.GET.search or request.GET.privacy or request.GET.sort %}
+                <a href="{% url 'userApp:user_photos' user.username %}" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Results Count -->
+{% if page_obj %}
+    <div class="flex justify-between items-center mb-4">
+        <p class="text-gray-600">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} photos
+        </p>
+        
+        <div class="flex space-x-2">
+            <button onclick="selectAll()" class="text-sm text-blue-600 hover:text-blue-800">
+                <i class="fas fa-check-square"></i> Select All
+            </button>
+            <button onclick="deselectAll()" class="text-sm text-gray-600 hover:text-gray-800">
+                <i class="fas fa-square"></i> Deselect All
+            </button>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Photo Grid -->
+{% if page_obj %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for photo in page_obj %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+            <!-- Photo Image -->
+            <div class="relative">
+                <a href="{% url 'userApp:photo_detail' photo.id %}">
+                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-full h-48 object-cover">
+                </a>
+                
+                <!-- Privacy Badge -->
+                <div class="absolute top-2 left-2">
+                    {% if photo.is_public %}
+                        <span class="bg-green-500 text-white px-2 py-1 rounded text-xs">
+                            <i class="fas fa-globe"></i> Public
+                        </span>
+                    {% else %}
+                        <span class="bg-orange-500 text-white px-2 py-1 rounded text-xs">
+                            <i class="fas fa-lock"></i> Private
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="absolute top-2 right-2 flex space-x-1">
+                    <a href="{% url 'userApp:photo_edit' photo.id %}" class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-edit text-xs"></i>
+                    </a>
+                    <a href="{% url 'userApp:photo_delete' photo.id %}" class="bg-red-600 text-white p-1 rounded hover:bg-red-700 transition duration-300">
+                        <i class="fas fa-trash text-xs"></i>
+                    </a>
+                </div>
+                
+                <!-- Stats Overlay -->
+                <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                    <i class="fas fa-eye"></i> {{ photo.views }}
+                </div>
+            </div>
+            
+            <!-- Photo Info -->
+            <div class="p-4">
+                <h3 class="font-semibold text-gray-800 mb-2">
+                    <a href="{% url 'userApp:photo_detail' photo.id %}" class="hover:text-blue-600">
+                        {{ photo.title }}
+                    </a>
+                </h3>
+                
+                {% if photo.description %}
+                    <p class="text-gray-600 text-sm mb-3">{{ photo.description|truncatewords:10 }}</p>
+                {% endif %}
+                
+                <!-- Stats -->
+                <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <div class="flex items-center space-x-3">
+                        <span><i class="fas fa-heart text-red-500"></i> {{ photo.likes.count }}</span>
+                        <span><i class="fas fa-comment"></i> {{ photo.comments.count }}</span>
+                    </div>
+                    <span class="text-xs">{{ photo.created_at|date:"M d, Y" }}</span>
+                </div>
+                
+                <!-- Tags -->
+                {% if photo.tags %}
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        {% for tag in photo.get_tags_list|slice:":2" %}
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{{ tag }}</span>
+                        {% endfor %}
+                        {% if photo.get_tags_list|length > 2 %}
+                            <span class="text-gray-400 text-xs">+{{ photo.get_tags_list|length|add:"-2" }} more</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+                <!-- Category -->
+                {% if photo.category %}
+                    <div class="text-xs text-gray-500">
+                        <i class="fas fa-folder"></i> {{ photo.category.name }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.privacy %}&privacy={{ request.GET.privacy }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.privacy %}&privacy={{ request.GET.privacy }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="px-3 py-2 bg-blue-600 text-white rounded">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.privacy %}&privacy={{ request.GET.privacy }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                           class="px-3 py-2 text-gray-500 hover:text-gray-700">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.privacy %}&privacy={{ request.GET.privacy }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.privacy %}&privacy={{ request.GET.privacy }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    {% endif %}
+    
+{% else %}
+    <!-- No Results -->
+    <div class="text-center py-12">
+        <div class="text-6xl text-gray-300 mb-4">
+            <i class="fas fa-images"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">No photos found</h3>
+        <p class="text-gray-500 mb-6">
+            {% if request.GET.search or request.GET.privacy %}
+                No photos match your current filters.
+            {% else %}
+                You haven't uploaded any photos yet. Start sharing your photography!
+            {% endif %}
+        </p>
+        <a href="{% url 'userApp:photo_upload' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">
+            <i class="fas fa-upload"></i> Upload Your First Photo
+        </a>
+    </div>
+{% endif %}
+
+<script>
+function selectAll() {
+    // Implementation for bulk selection
+    console.log('Select all photos');
+}
+
+function deselectAll() {
+    // Implementation for bulk deselection
+    console.log('Deselect all photos');
+}
+</script>
+{% endblock %} 

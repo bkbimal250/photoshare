@@ -1,0 +1,185 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Photo Gallery - PhotoShare{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Photo Gallery</h1>
+    
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Search -->
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" name="search" id="search" value="{{ search_query }}" 
+                           placeholder="Search photos, photographers, tags..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Category Filter -->
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select name="category" id="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if current_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Sort -->
+                <div>
+                    <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                    <select name="sort" id="sort" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Most Popular</option>
+                        <option value="liked" {% if sort_by == 'liked' %}selected{% endif %}>Most Liked</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                
+                {% if search_query or current_category or sort_by != 'newest' %}
+                    <a href="{% url 'userApp:photo_list' %}" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    
+    <!-- Results Count -->
+    {% if page_obj %}
+        <div class="flex justify-between items-center mb-4">
+            <p class="text-gray-600">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} photos
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Photo Grid -->
+{% if page_obj %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for photo in page_obj %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+            <a href="{% url 'userApp:photo_detail' photo.id %}">
+                <div class="relative">
+                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+                        <i class="fas fa-eye"></i> {{ photo.views }}
+                    </div>
+                    {% if photo.category %}
+                        <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-sm">
+                            {{ photo.category.name }}
+                        </div>
+                    {% endif %}
+                </div>
+            </a>
+            
+            <div class="p-4">
+                <h3 class="font-semibold text-gray-800 mb-2">
+                    <a href="{% url 'userApp:photo_detail' photo.id %}" class="hover:text-blue-600">
+                        {{ photo.title }}
+                    </a>
+                </h3>
+                
+                {% if photo.description %}
+                    <p class="text-gray-600 text-sm mb-3">{{ photo.description|truncatewords:15 }}</p>
+                {% endif %}
+                
+                <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <a href="{% url 'userApp:user_profile' photo.photographer.username %}" class="hover:text-blue-600">
+                        <i class="fas fa-user"></i> {{ photo.photographer.username }}
+                    </a>
+                    <span class="flex items-center">
+                        <i class="fas fa-heart text-red-500 mr-1"></i> {{ photo.likes.count }}
+                    </span>
+                </div>
+                
+                {% if photo.tags %}
+                    <div class="flex flex-wrap gap-1">
+                        {% for tag in photo.get_tags_list|slice:":3" %}
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{{ tag }}</span>
+                        {% endfor %}
+                        {% if photo.get_tags_list|length > 3 %}
+                            <span class="text-gray-400 text-xs">+{{ photo.get_tags_list|length|add:"-3" }} more</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+                <div class="mt-3 text-xs text-gray-400">
+                    <i class="fas fa-calendar"></i> {{ photo.created_at|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="px-3 py-2 bg-blue-600 text-white rounded">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
+                           class="px-3 py-2 text-gray-500 hover:text-gray-700">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
+                       class="px-3 py-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    {% endif %}
+    
+{% else %}
+    <!-- No Results -->
+    <div class="text-center py-12">
+        <div class="text-6xl text-gray-300 mb-4">
+            <i class="fas fa-images"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">No photos found</h3>
+        <p class="text-gray-500 mb-6">
+            {% if search_query %}
+                No photos match your search criteria "{{ search_query }}".
+            {% else %}
+                No photos are available at the moment.
+            {% endif %}
+        </p>
+        <a href="{% url 'userApp:photo_list' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">
+            <i class="fas fa-images"></i> Browse All Photos
+        </a>
+    </div>
+{% endif %}
+{% endblock %} 

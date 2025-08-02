@@ -1,0 +1,337 @@
+{% extends 'userApp/base.html' %}
+
+{% block title %}Photo Albums - PhotoShare{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-50 to-purple-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Photo Albums</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
+                Discover curated collections of stunning photography from our community of talented photographers.
+            </p>
+            
+            <!-- Stats -->
+            <div class="flex flex-wrap justify-center gap-8 mb-8">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600 mb-2">{{ total_albums|default:0 }}</div>
+                    <div class="text-gray-600">Total Albums</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600 mb-2">{{ total_photos|default:0 }}</div>
+                    <div class="text-gray-600">Total Photos</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600 mb-2">{{ photographers_count|default:0 }}</div>
+                    <div class="text-gray-600">Photographers</div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'userApp:album_create' %}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition duration-300">
+                        <i class="fas fa-plus"></i>
+                        <span>Create Album</span>
+                    </a>
+                {% endif %}
+                <a href="{% url 'userApp:photo_list' %}" class="inline-flex items-center space-x-2 bg-white text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition duration-300 border border-gray-200">
+                    <i class="fas fa-images"></i>
+                    <span>Browse All Photos</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Albums Grid -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if page_obj %}
+            <!-- Filters and Sort -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-700 font-medium">Sort by:</span>
+                        <div class="flex space-x-2">
+                            <a href="?sort=newest" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'newest' or not request.GET.sort %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Newest
+                            </a>
+                            <a href="?sort=oldest" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'oldest' %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Oldest
+                            </a>
+                            <a href="?sort=popular" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'popular' %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Most Popular
+                            </a>
+                            <a href="?sort=photos" class="px-3 py-1 rounded-md text-sm font-medium {% if request.GET.sort == 'photos' %}bg-blue-100 text-blue-700{% else %}text-gray-600 hover:bg-gray-100{% endif %} transition duration-200">
+                                Most Photos
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} albums
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Albums Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for album in page_obj %}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 hover-scale group">
+                    <!-- Album Cover -->
+                    <div class="relative overflow-hidden">
+                        {% if album.photos.all %}
+                            <a href="{% url 'userApp:album_detail' album.id %}">
+                                <div class="grid grid-cols-2 gap-1 h-48">
+                                    {% for photo in album.photos.all|slice:":4" %}
+                                        <div class="{% if forloop.counter == 1 %}col-span-2 row-span-2{% endif %} overflow-hidden">
+                                            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </a>
+                        {% else %}
+                            <div class="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fas fa-images text-4xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">No photos yet</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Album Stats Overlay -->
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+                            <i class="fas fa-images"></i> {{ album.photos.count }}
+                        </div>
+                        
+                        <!-- Privacy Badge -->
+                        <div class="absolute top-4 left-4">
+                            {% if album.is_public %}
+                                <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    <i class="fas fa-globe"></i> Public
+                                </span>
+                            {% else %}
+                                <span class="bg-gray-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    <i class="fas fa-lock"></i> Private
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Album Info -->
+                    <div class="p-6">
+                        <h3 class="font-semibold text-gray-800 mb-2 text-xl">
+                            <a href="{% url 'userApp:album_detail' album.id %}" class="hover:text-blue-600 transition duration-300">
+                                {{ album.title }}
+                            </a>
+                        </h3>
+                        
+                        {% if album.description %}
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ album.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        
+                        <!-- Photographer Info -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                {% if album.photographer.profile_image %}
+                                    <img src="{{ album.photographer.profile_image.url }}" alt="{{ album.photographer.username }}" class="w-6 h-6 rounded-full object-cover">
+                                {% else %}
+                                    <div class="w-6 h-6 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-xs"></i>
+                                    </div>
+                                {% endif %}
+                                <a href="{% url 'userApp:user_profile' album.photographer.username %}" class="text-sm text-gray-600 hover:text-blue-600 transition duration-300">
+                                    {{ album.photographer.username }}
+                                </a>
+                            </div>
+                            <span class="text-xs text-gray-500">{{ album.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        
+                        <!-- Album Stats -->
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <div class="flex items-center space-x-4">
+                                <span class="flex items-center space-x-1">
+                                    <i class="fas fa-images"></i>
+                                    <span>{{ album.photos.count }} photos</span>
+                                </span>
+                                <span class="flex items-center space-x-1">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>{{ album.created_at|date:"M d, Y" }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <a href="{% url 'userApp:album_detail' album.id %}" class="text-blue-600 hover:text-blue-700 text-sm font-medium transition duration-300">
+                                View Album <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                            
+                            {% if user == album.photographer %}
+                                <div class="flex items-center space-x-2">
+                                    <a href="#" class="text-gray-500 hover:text-blue-500 transition duration-300" title="Edit Album">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="text-gray-500 hover:text-red-500 transition duration-300" title="Delete Album">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="mt-12">
+                    <nav class="flex items-center justify-center" aria-label="Pagination">
+                        <ul class="flex items-center space-x-2">
+                            {% if page_obj.has_previous %}
+                                <li>
+                                    <a href="?page=1{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li>
+                                        <span class="px-3 py-2 bg-blue-600 text-white rounded-md font-medium">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li>
+                                        <a href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition duration-200">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li>
+                                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="px-3 py-2 text-gray-500 hover:text-gray-700 transition duration-200">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    
+                    <div class="text-center mt-4 text-sm text-gray-600">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </div>
+                </div>
+            {% endif %}
+            
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <div class="text-6xl text-gray-300 mb-6">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3 class="text-2xl font-semibold text-gray-600 mb-4">No albums found</h3>
+                <p class="text-gray-500 mb-8 max-w-md mx-auto">
+                    Be the first to create a beautiful photo album and share your photography collection!
+                </p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'userApp:album_create' %}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition duration-300">
+                        <i class="fas fa-plus"></i>
+                        <span>Create First Album</span>
+                    </a>
+                {% else %}
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a href="{% url 'userApp:register' %}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition duration-300">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Join PhotoShare</span>
+                        </a>
+                        <a href="{% url 'userApp:photo_list' %}" class="inline-flex items-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-300">
+                            <i class="fas fa-images"></i>
+                            <span>Browse Photos</span>
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Featured Albums Section -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Why Create Albums?</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">Organize your photography into beautiful collections and tell stories through curated images.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-layer-group text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Organize Your Work</h3>
+                <p class="text-gray-600">Group related photos together to create meaningful collections that showcase your photography style.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-share-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Share Stories</h3>
+                <p class="text-gray-600">Tell visual stories through carefully curated albums that take viewers on a journey through your photography.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Build Community</h3>
+                <p class="text-gray-600">Connect with fellow photographers by sharing your albums and discovering amazing collections from others.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+{% if user.is_authenticated %}
+<section class="py-16 gradient-bg text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Create Your First Album?</h2>
+        <p class="text-xl text-blue-100 mb-8 leading-relaxed">
+            Start organizing your photography into beautiful collections and share your creative vision with the world.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{% url 'userApp:album_create' %}" class="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition duration-300 hover-scale flex items-center space-x-2">
+                <i class="fas fa-plus"></i>
+                <span>Create Album</span>
+            </a>
+            <a href="{% url 'userApp:photo_upload' %}" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-blue-600 transition duration-300 hover-scale flex items-center space-x-2">
+                <i class="fas fa-upload"></i>
+                <span>Upload Photos</span>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+{% endblock %} 
